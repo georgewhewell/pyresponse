@@ -80,3 +80,25 @@ pureresponse.message_by_name('new_message_name')
 # by message id
 pureresponse.message_by_id('555555')
 ```
+==========
+**Using constants**  
+```python
+# e.g.
+>>> pureresponse.Message.ID
+'messageId'
+>>> pureresponse.Upload.TYPE
+'uploadTransactionType'
+# for more constants see ./lib/core.py
+```
+==========
+**Using core methods**  
+```python
+# e.g.
+# replicating behaviour of pureresponse.person_by_id('555555555')
+pureresponse.api_core.load(pureresponse.Class.CAMPAIGN_PERSON, {pureresponse.Person.ID: '555555555'})
+# replicating behaviour of pureresponse.person_by_email('blackhole@example.com')
+loaded = pureresponse.api_core.load_search(pureresponse.Class.CAMPAIGN_PERSON, {pureresponse.Person.EMAIL: 'blackhole@example.com'})
+person = pureresponse.api_core.filter_loaded(loaded, {pureresponse.Person.EMAIL: 'blackhole@example.com'}, None)
+result = person[0] if len(person) else None
+# both methods will return the same structure (a person record)
+```
