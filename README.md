@@ -83,8 +83,10 @@ pureresponse.message_by_id('555555')
 ==========
 **Using constants**
 ```python
+# e.g.
 >>> pureresponse.Message.ID
 'messageId'
 >>> pureresponse.Upload.TYPE
 'uploadTransactionType'
+# for more constants see ./lib/core.py
 ```
