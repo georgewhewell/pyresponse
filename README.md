@@ -1,5 +1,5 @@
 pyresponse
-========
+==========
 **PureResponseClient**
 Python API wrapper for PureResponse PAINT
 
