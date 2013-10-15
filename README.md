@@ -81,7 +81,7 @@ pureresponse.message_by_name('new_message_name')
 pureresponse.message_by_id('555555')
 ```
 ==========
-**Using constants**
+**Using constants**  
 ```python
 # e.g.
 >>> pureresponse.Message.ID
@@ -91,7 +91,7 @@ pureresponse.message_by_id('555555')
 # for more constants see ./lib/core.py
 ```
 ==========
-**Using core methods**
+**Using core methods**  
 ```python
 # e.g.
 # replicating behaviour of pureresponse.person_by_id('555555555')
