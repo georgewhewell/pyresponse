@@ -80,3 +80,11 @@ pureresponse.message_by_name('new_message_name')
 # by message id
 pureresponse.message_by_id('555555')
 ```
+==========
+**Using constants**
+```python
+>>> pureresponse.Message.ID
+'messageId'
+>>> pureresponse.Upload.TYPE
+'uploadTransactionType'
+```
