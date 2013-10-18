@@ -90,6 +90,7 @@ pureresponse.message_by_name('new_message_name')
 pureresponse.message_by_id('555555')
 ```
 For more readily available api calls, see [helpers.py](lib/helpers.py)  
+
 ==========
 **Using constants**  
 ```python
@@ -100,6 +101,7 @@ For more readily available api calls, see [helpers.py](lib/helpers.py)
 'uploadTransactionType'
 ```
 For more constants, see [core.py](lib/core.py)  
+
 ==========
 **Using core methods**  
 ```python
@@ -130,7 +132,7 @@ list_filter_names = pureresponse.filters_for_list_id(my_list_id,
                                                      output_filter=key_filter)
 ```
 ==========
-**Output filters**
+**Output filters**  
 An output filter is a closure where the inner function will operate on a dictionary "candidate" and return some subset of the information within
 ```python
 # e.g.
