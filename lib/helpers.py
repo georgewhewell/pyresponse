@@ -47,7 +47,7 @@ class Helpers:
 
     def list_by_name(self, list_name, output_filter=None):
         """
-        Get an (optionally filtered) list record from a list name
+        Get an (optionally filtered) list record from a list name.
         ------------------------------------------------
         @param list_name                 - 'my_contact_list'
         @param [output_filter]           - filter for the record, e.g.
@@ -65,7 +65,7 @@ class Helpers:
 
     def list_by_id(self, list_id, output_filter=None):
         """
-        Get an (optionally filtered) list record from a list ID
+        Get an (optionally filtered) list record from a list id.
         ------------------------------------------------
         @param list_id                   - '555555'
         @param [output_filter]           - filter for the record, e.g.
@@ -82,7 +82,7 @@ class Helpers:
 
     def filter_by_name(self, filter_name, output_filter=None):
         """
-        Get an (optionally filtered) filter record from a filter name
+        Get an (optionally filtered) filter record from a filter name.
         ------------------------------------------------
         @param filter_name               - 'my_filter'
         @param [output_filter]           - filter for the record, e.g.
@@ -99,7 +99,7 @@ class Helpers:
 
     def filter_by_id(self, filter_id, output_filter=None):
         """
-        Get an (optionally filtered) filter record from a filter ID
+        Get an (optionally filtered) filter record from a filter id.
         ------------------------------------------------
         @param filter_id                 - '55555'
         @param [output_filter]           - filter for the record, e.g.
@@ -114,7 +114,7 @@ class Helpers:
 
     def filters_for_list_id(self, list_id, search_params=None, output_filter=None):
         """
-        Get a set of (optionally filtered) filter records for a given list ID
+        Get a set of (optionally filtered) filter records for a given list id.
         ------------------------------------------------
         @param list_id                   - '555555'
         @param [search_params]           - a dictionary of keys and values to match against
@@ -132,7 +132,7 @@ class Helpers:
 
     def message_by_name(self, message_name, output_filter=None):
         """
-        Get an (optionally filtered) message record from a message name
+        Get an (optionally filtered) message record from a message name.
         ------------------------------------------------
         @param message_name              - 'my_message'
         @param [output_filter]           - filter for the record, e.g.
@@ -150,7 +150,7 @@ class Helpers:
 
     def message_by_id(self, message_id, output_filter=None):
         """
-        Get an (optionally filtered) message record from a message ID
+        Get an (optionally filtered) message record from a message id.
         ------------------------------------------------
         @param message_id                - '555555'
         @param [output_filter]           - filter for the record, e.g.
@@ -166,17 +166,16 @@ class Helpers:
     def create_message(self, message_name, subject, message_body, overwrite_existing=False):
         """
         Create an email message, optionally overwriting any existing
-        records with the same message name
+        records with the same message name.
         ------------------------------------------------
         @param message_name              - 'my_message'
         @param subject                   - 'subject line'
         @param message_body              - '<h1>Hello, world</h1>'
         @param [overwrite_existing]      - should existing records by this name be overwritten?
                                            True / False
-        @return result                   - storage result e.g. {emailId: 555555, 
-                                                                beanName: bus_entity_campaign_email, 
+        @return result                   - storage result e.g. {emailId: 555555,
+                                                                beanName: bus_entity_campaign_email,
                                                                 messageId: 555555}
-
         """
         self.api_core.handle_existing(Core.Class.CAMPAIGN_EMAIL,
                                       self.message_by_name(message_name),
@@ -192,7 +191,7 @@ class Helpers:
     def create_list(self, list_name, list_data, notify_uri=None, overwrite_existing=False):
         """
         Create a contact list, optionally overwriting any existing
-        records with the same message name
+        records with the same message name.
         ------------------------------------------------
         @param list_name                 - 'my_contact_list'
         @param list_data                 - person record or list of person records e.g.
@@ -221,7 +220,7 @@ class Helpers:
     def send_to_person(self, message_name, email_address, custom_data=None):
         """
         Send a one off transactional email message to a given
-        email address
+        email address.
         ------------------------------------------------
         @param message_name              - 'my_message'
         @param email_address             - 'blackhole@example.com'
@@ -231,16 +230,29 @@ class Helpers:
         entity_data = {Core.Message.TO_ADDRESS: email_address}
         if custom_data is not None:
             entity_data[Core.Message.CUSTOM_DATA] = custom_data
-        created = self.api_core.create(Core.Class.CAMPAIGN_ONE_TO_ONE,
-                                       entity_data,
-                                       {Core.Message.MSG_NAME: message_name})
+        try:
+            created = self.api_core.create(Core.Class.CAMPAIGN_ONE_TO_ONE,
+                                           entity_data,
+                                           {Core.Message.MSG_NAME: message_name})
+        except Core.CreateError as e:
+            if 'new message' in e.message:
+                message = ('None found: message_name=%s' % (message_name))
+                raise Helpers.NoneFoundError(message)
+            raise
         return self.api_core.store(Core.Class.CAMPAIGN_ONE_TO_ONE,
                                    {Core.Entity.ID: created})
 
 
+
+
+
+    lib.core.CreateError: Create failed: bean_class=campaign_one2one, entity_data={'toAddress': 'mikael.kohlmyr@triggeredmessaging.com'}, process_data={'message_messageName': 'apiapiapiapaipaipaipa'}, response={contentType: Content type not supplied for new message}
+
+
     def send_to_list(self, message_name, list_name, scheduling_delay = {Core.Scheduling.MINUTES: 3}):
         """
-        Send an email campaign to a contact list
+        Schedule the sending of an email campaign to a contact list.
+        Setting
         ------------------------------------------------
         @param message_name              - 'my_message'
         @param list_name                 - 'my_contact_list'
@@ -299,6 +311,7 @@ class Helpers:
         entity_data.update([self.api_translator.base_encode(Core.Upload.PASTE_FILE, paste_file)])
         entity_data.update(self.api_translator.csv_fields(paste_file))
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
+
 
 
     class NoneFoundError(Exception):

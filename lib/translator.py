@@ -118,6 +118,7 @@ class Translator:
     def response_stored(self, response, b_class):
         return self.response_data(response, Core.Type.ENTITY, b_class + '_key')
 
+
     def response_bean_id(self, response, b_class):
         return self.response_data(response, Core.Type.ENTITY, b_class).get(Core.Entity.ID)
 

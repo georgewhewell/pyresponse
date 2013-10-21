@@ -10,6 +10,7 @@ mikael.kohlmyr@triggeredmessaging.com
 [Triggered Messaging](http://www.triggeredmessaging.com),   
 [Pure360](http://www.pure360.com)
 
+API Examples  
 ==========
 **Import**  
 ```python
@@ -102,3 +103,8 @@ person = pureresponse.api_core.filter_loaded(loaded, {pureresponse.Person.EMAIL:
 result = person[0] if len(person) else None
 # both methods will return the same structure (a person record)
 ```
+PureResponse Concepts  
+==========
+**PureResponse concepts**  
+Beans
+

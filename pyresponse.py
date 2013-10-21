@@ -48,11 +48,12 @@ class PureResponseClient(object):
                                            fields you are allowed to use in contact lists
 
                                            if you indicate a level higher than that of your
-                                           account a pyresponse.Core.StoreError will be raised
+                                           account a pyresponse.Core.StoreErrors will be raised
                                            when your actual limit is met
 
                                            going over the limit indicated by this parameter will
-                                           raise a pyresponse.Translator.AccountLevelError
+                                           raise a pyresponse.Translator.AccountLevelError in
+                                           those same cases
 
                                            pyresponse.AccountLevel.LITE offers 10 custom fields
                                            pyresponse.AccountLevel.PRO offers 20 custom fields
@@ -69,10 +70,23 @@ class PureResponseClient(object):
         return self.api_core.authenticate(api_username, api_password)
 
     def invalidate(self):
+        """
+        Clears authentication credentials, makes a logout call
+        to PureResponse. Follow-on calls will fail before calling
+        as a result of lacking an api context id (Core.context_id).
+        ------------------------------------------------
+        """
         self.api_core.invalidate()
 
 
     def register_helpers(self):
+        """
+        Gives access to classes and methods from ./lib/helpers.py and
+        ./lib/core.py from pyresponse.py, making the code a litle easier
+        to maintain. Separates public facing interfaces from those mainly
+        intended for internal use.
+        ------------------------------------------------
+        """
         for key, value in Helpers.__dict__.iteritems():
             if callable(value):
                 setattr(self, key, types.MethodType(value, self))
