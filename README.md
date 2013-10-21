@@ -103,8 +103,17 @@ person = pureresponse.api_core.filter_loaded(loaded, {pureresponse.Person.EMAIL:
 result = person[0] if len(person) else None
 # both methods will return the same structure (a person record)
 ```
-PureResponse Concepts  
+API Concepts and Internals  
 ==========
-**PureResponse concepts**  
-Beans
+**PureResponse Application Interface (PAINT)**  
+PAINT is an interface to PureResponse which is accessed through the [Simple Object Access Protocol (SOAP)](http://en.wikipedia.org/wiki/SOAP).
+PAINT is not however a traditional SOAP implementation. All calls to the API go to the same handler for PureResponse which then dispatches the call appropriately. This is why all requests in pyresponse are made from [Core.make_request](/lib/core.py) to a single endpoint, but with different input.
+
+**Beans**  
+
+| Bean type | Prefix       | Description                                                     |
+| --------- | ------------ | --------------------------------------------------------------- |
+| Entity    | `bus_entity` | The representations of the core data in PureResponse            |
+| Facade    | `bus_facade` | Proxies for accessing and manipulating Entity and Search beans  |
+| Search    | `bus_search` | Define how entities are searchable and format results           |
 
