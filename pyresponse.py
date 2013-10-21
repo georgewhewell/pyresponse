@@ -38,6 +38,28 @@ class PureResponseClient(object):
 
 
     def authenticate(self, api_username=None, api_password=None, api_account_level=AccountLevel.LITE):
+        """
+        Authenticates a username and password against the PureResponse API,
+        must be done before making all other API calls.
+        ------------------------------------------------
+        @param api_username              - username of account from which to make api calls
+        @param api_password              - password of that same account
+        @param [api_account_level]       - your api account level indicates how many custom
+                                           fields you are allowed to use in contact lists
+
+                                           if you indicate a level higher than that of your
+                                           account a pyresponse.Core.StoreError will be raised
+                                           when your actual limit is met
+
+                                           going over the limit indicated by this parameter will
+                                           raise a pyresponse.Translator.AccountLevelError
+
+                                           pyresponse.AccountLevel.LITE offers 10 custom fields
+                                           pyresponse.AccountLevel.PRO offers 20 custom fields
+                                           pyresponse.AccountLevel.EXPERT offers 40 custom fields
+        @return                          - bean id for a context bean in pureresponse, will be
+                                           used to identify the API session
+        """
         self.api_account_level = api_account_level
         if (not api_username) or (not api_password):
             message = ('Invalid authentication details: api_username=%s, api_password=%s' %

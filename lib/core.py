@@ -151,7 +151,7 @@ class Core:
             message = ('Store failed: bean_class=%s, entity_data=%s, response=%s' %
                        (bean_class, entity_data, self.api_translator.response_data(store_response)))
             raise Core.StoreError(message)
-        return self.api_translator.response_data(store_response)
+        return self.api_translator.response_stored(store_response, bean_class)
 
 
     def search(self, bean_class, search_params):
@@ -192,9 +192,10 @@ class Core:
 
 
     def handle_existing(self, bean_class, found, overwrite_existing):
-        if found and len(found):
+        if found:
             if overwrite_existing:
-                removed = self.remove(bean_class, found[0].get(Core.Entity.ID))
+                print found
+                removed = self.remove(bean_class, found.get(Core.Entity.ID))
             else:
                 message = ('Record exists: overwrite_existing=%s' % (overwrite_existing))
                 raise Core.ExistsError(message)

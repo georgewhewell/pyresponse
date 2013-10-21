@@ -115,12 +115,15 @@ class Translator:
             raise Translator.ParameterError(message)
 
 
+    def response_stored(self, response, b_class):
+        return self.response_data(response, Core.Type.ENTITY, b_class + '_key')
+
     def response_bean_id(self, response, b_class):
-        return self.response_data(response, 'bus_entity', b_class).get('beanId')
+        return self.response_data(response, Core.Type.ENTITY, b_class).get(Core.Entity.ID)
 
 
     def response_found(self, response, b_class):
-        return self.response_data(response, 'bus_search', b_class).get('idData').values()
+        return self.response_data(response, Core.Type.SEARCH, b_class).get(Core.Result.FOUND).values()
 
 
     def x_encode(self, string, errors='ignore'):
