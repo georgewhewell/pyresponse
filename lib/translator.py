@@ -14,6 +14,10 @@ class Translator:
 
     class CSV:
         DIALECT = 'pyresponse-csv'
+        QUOTES = '"'
+        ESCAPE = '\\'
+        QUOTING = csv.QUOTE_MINIMAL
+        SKIP_INITIAL_SPACE = True
 
     main = None
     factory = None
@@ -25,6 +29,17 @@ class Translator:
 
 
     def ensuds(self, dictionary):
+        """
+        Turn a dictionary into a soap structure as defined by the wsdl
+        from pyresponse.Api used when instantiating the API wrapper.
+        Dictionaries become paintArrays, key, value pairs from the
+        dictionary become paintKeyValuePair objects.
+
+        Also manages encoding of keys and values.
+        ------------------------------------------------
+        @param dictionary                - dictionary of request data
+        @return result                   - soap representation of that same data
+        """
         if not dictionary:
             return null()
         array = self.factory.create('paintArray')
@@ -47,6 +62,14 @@ class Translator:
 
 
     def desuds(self, ptarr):
+        """
+        Turn a soap structure (response) into a dictionary.
+        Make dictionaries from paintArrays, paintKeyValuePairs become
+        keys and values.
+        ------------------------------------------------
+        @param ptarr                     - soap datastructure
+        @return result                   - dictionary representation of that same data
+        """
         dictionary = dict()
         if not hasattr(ptarr, 'pairs'):
             return None
@@ -67,6 +90,18 @@ class Translator:
 
 
     def encsv(self, input_):
+        """
+        Turn dictionary or list of dictionaries into a csv string.
+        Create a master list of keys in the dictionaries, from the
+        master list establish the top row of the csv field.
+        Then fill it out with values from each dictionary using a
+        DictWriter.
+        ------------------------------------------------
+        @param input_                    - (shallow) dictionary or list of dictionaries
+        @return result                   - csv string representing that same data, adhering
+                                           to the csv dialect defined by the properties of
+                                           Translator.CSV
+        """
         if not isinstance(input_, list):
             input_ = [input_]
 
@@ -77,10 +112,10 @@ class Translator:
 
         csv_string = StringIO.StringIO()
         csv.register_dialect(Translator.CSV.DIALECT,
-                             escapechar='\\',
-                             quotechar='"',
-                             quoting=csv.QUOTE_MINIMAL,
-                             skipinitialspace=True)
+                             escapechar=Translator.CSV.ESCAPE,
+                             quotechar=Translator.CSV.QUOTES,
+                             quoting=Translator.CSV.QUOTING,
+                             skipinitialspace=Translator.CSV.SKIP_INITIAL_SPACE)
 
         csv_writer = csv.DictWriter(csv_string, master, dialect=Translator.CSV.DIALECT)
 
@@ -95,6 +130,16 @@ class Translator:
 
 
     def response_data(self, dictionary, b_type=None, b_class=None, field='resultData'):
+        """
+        From a multi-level dictionary, grab the fields that
+        contain the relevant information for the call that was made.
+        ------------------------------------------------
+        @param dictionary                - e.g. {'resultData' : {'bus_facade_campaign_list' : {..}}}
+        @param [b_type]                  - any property of Core.Type, e.g. bus_facade
+        @param [b_class]                 - any property of Core.Class, e.g. campaign_list
+        @param [field]                   - result field, defaults to resultData
+        @return result                   - given example parameters: {..}
+        """
         try:
             if (b_type is not None) and (b_class is not None):
                 if field is None:
@@ -140,6 +185,20 @@ class Translator:
 
 
     def csv_fields(self, csv_string):
+        """
+        Split the heading row and build a dictionary which
+        indexes them in accordance with the PureResponse
+        specification. Custom fields are numbered, email
+        and mobile fields are attached to standard fields
+        through a similar naming convention.
+
+        Going above pre-defined account limits will raise
+        an exception.
+        ------------------------------------------------
+        @param csv_string                - email, my_custom_field
+        @return result                   - {'emailCol': 0, field2Col: 1,
+                                            'field2Name': 'my_custom_field'}
+        """
         entity_data = dict()
         count = 0
         custom = 0
