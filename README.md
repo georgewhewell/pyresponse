@@ -147,9 +147,9 @@ def key_filter(key):
 API Concepts and Internals  
 ==========
 **PureResponse Application Interface (PAINT)**  
-PAINT is an interface to PureResponse which is accessed through the [Simple Object Access Protocol (SOAP)](http://en.wikipedia.org/wiki/SOAP).
-Unlike a traditional SOAP implementation, all API calls are made to the same handler function which then dispatches calls internally to PureResponse. This means different calls are distinguished based on call data, which is why the handler expects a parameter identifying the bean type it is to act on, e.g. `bus_facade_campaign_list` and an action (or process) to perform, e.g. `create`.  
-Paraphrasing Core.make_request:  
+PAINT is an interface to PureResponse which is accessed through the [Simple Object Access Protocol](http://en.wikipedia.org/wiki/SOAP).  
+However, unlike in a traditional SOAP implementation, all calls are made to the same handler which then dispatches calls internally to PureResponse. This means different calls are distinguished based on parameters which specify what data to operate on and how to operate on it, e.g. `bus_facade_campaign_list` and `create`.  
+
 ```python
 context = self.api_context or self.api_translator.null()
 bean = bean_type + '_' + bean_class
@@ -160,6 +160,7 @@ response = self.api_client.service.handleRequest(context,
                                                  bean_proc,
                                                  entity_data,
                                                  process_data)
+result = self.api_translator.desuds(response)
 ```
 
 **Beans**  
@@ -170,5 +171,4 @@ The term Bean is used in PureResponse to refer to logical entities that contain 
 | Entity    | `bus_entity` | The representations of the core data in PureResponse            |
 | Facade    | `bus_facade` | Proxies for accessing and manipulating Entity and Search beans  |
 | Search    | `bus_search` | Define how entities are searchable and format results           |
-
 
