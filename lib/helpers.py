@@ -9,6 +9,17 @@ import datetime
 class Helpers:
 
     def person_by_email(self, email_address, output_filter=None):
+        """
+        Get an (optionally filtered) person record from an email address.
+        Note that person records will not include custom fields as these
+        exist on a per-list basis.
+        ------------------------------------------------
+        @param email_address             - 'blackhole@exmaple.com'
+        @param [output_filter]           - filter for the record, e.g.
+                                           Core.Filters.key_filter(Core.Person.ID)
+                                           will ouput Core.Person.ID field instead of dictionary
+        @return person                   - either a (optionally filtered) person record or None
+        """
         loaded = self.api_core.load_search(Core.Class.CAMPAIGN_PERSON,
                                            {Core.Person.EMAIL: email_address})
         person = self.api_core.filter_loaded(loaded,
@@ -17,12 +28,33 @@ class Helpers:
         return person[0] if len(person) else None
 
 
-    def person_by_id(self, person_id):
-        return self.api_core.load(Core.Class.CAMPAIGN_PERSON,
-                                  {Core.Person.ID: person_id})
+    def person_by_id(self, person_id, output_filter=None):
+        """
+        Get an (optionally filtered) person record from a person ID.
+        Note that person records will not include custom fields as these
+        exist on a per-list basis.
+        ------------------------------------------------
+        @param person_id                 - '555555555'
+        @param [output_filter]           - filter for the record, e.g.
+                                           Core.Filters.key_filter(Core.Person.EMAIL)
+                                           will ouput Core.Person.EMAIL field instead of dictionary
+        @return person                   - either an (optionally filtered) person record or None
+        """
+        loaded = self.api_core.load(Core.Class.CAMPAIGN_PERSON, {Core.Person.ID: person_id})
+        person = self.api_core.filter_loaded([loaded], None, output_filter)
+        return person[0] if len(person) else None
 
 
     def list_by_name(self, list_name, output_filter=None):
+        """
+        Get an (optionally filtered) list record from a list name.
+        ------------------------------------------------
+        @param list_name                 - 'my_contact_list'
+        @param [output_filter]           - filter for the record, e.g.
+                                           Core.Filters.key_filter(Core.List.ID)
+                                           will ouput Core.List.ID field instead of dictionary
+        @return list_                    - either an (optionally filtered) list record or None
+        """
         loaded = self.api_core.load_search(Core.Class.CAMPAIGN_LIST,
                                            {Core.List.NAME: list_name})
         list_ = self.api_core.filter_loaded(loaded,
@@ -31,12 +63,84 @@ class Helpers:
         return list_[0] if len(list_) else None
 
 
-    def list_by_id(self, list_id):
-        return self.api_core.load(Core.Class.CAMPAIGN_LIST,
-                                  {Core.List.ID: list_id})
+    def list_by_id(self, list_id, output_filter=None):
+        """
+        Get an (optionally filtered) list record from a list id.
+        ------------------------------------------------
+        @param list_id                   - '555555'
+        @param [output_filter]           - filter for the record, e.g.
+                                           Core.Filters.key_filter(Core.List.CUSTOM_FIELD_NAMES)
+                                           will ouput Core.List.CUSTOM_FIELD_NAMES field instead
+                                           of dictionary
+        @return list_                    - either an (optionally filtered) list record or None
+        """
+        loaded = self.api_core.load(Core.Class.CAMPAIGN_LIST, {Core.List.ID: list_id})
+        list_ = self.api_core.filter_loaded([loaded], None, output_filter)
+        return list_[0] if len(list_) else None
+
+
+
+    def filter_by_name(self, filter_name, output_filter=None):
+        """
+        Get an (optionally filtered) filter record from a filter name.
+        ------------------------------------------------
+        @param filter_name               - 'my_filter'
+        @param [output_filter]           - filter for the record, e.g.
+                                           Core.Filters.key_filter(Core.Filter.ID)
+                                           will ouput Core.Filter.ID field instead of dictionary
+        @return filter                   - either an (optionally filtered) filter record or None
+        """
+        loaded = self.api_core.load_search(Core.Class.CAMPAIGN_FILTER,
+                                           {Core.Filter.NAME: filter_name})
+        filter_ = self.api_core.filter_loaded(loaded,
+                                              {Core.Filter.NAME: filter_name},
+                                              output_filter)
+        return filter_[0] if len(filter_) else None
+
+    def filter_by_id(self, filter_id, output_filter=None):
+        """
+        Get an (optionally filtered) filter record from a filter id.
+        ------------------------------------------------
+        @param filter_id                 - '55555'
+        @param [output_filter]           - filter for the record, e.g.
+                                           Core.Filters.key_filter(Core.Filter.fieldNameList)
+                                           will ouput Core.Filter.fieldNameList field instead
+                                           of dictionary
+        @return filter                   - either an (optionally filtered) filter record or None
+        """
+        loaded = self.api_core.load(Core.Class.CAMPAIGN_FILTER, {Core.Filter.ID: filter_id})
+        filter_ = self.api_core.filter_loaded([loaded], None, output_filter)
+        return filter_[0] if len(filter_) else None
+
+    def filters_for_list_id(self, list_id, search_params=None, output_filter=None):
+        """
+        Get a set of (optionally filtered) filter records for a given list id.
+        ------------------------------------------------
+        @param list_id                   - '555555'
+        @param [search_params]           - a dictionary of keys and values to match against
+        @param [output_filter]           - filter for the records, e.g.
+                                           Core.Filters.key_filter(Core.Filter.NAME) will output a
+                                           set of values for the Core.Filter.NAME field instead of
+                                           full filter records
+        @return filters                  - a (potentially empty) set of (optionally filtered)
+                                           filter records
+        """
+        loaded = self.api_core.load_search(Core.Class.CAMPAIGN_FILTER, {Core.List.ID: list_id})
+        filters = self.api_core.filter_loaded(loaded, search_params, output_filter)
+        return filters
 
 
     def message_by_name(self, message_name, output_filter=None):
+        """
+        Get an (optionally filtered) message record from a message name.
+        ------------------------------------------------
+        @param message_name              - 'my_message'
+        @param [output_filter]           - filter for the record, e.g.
+                                           Core.Filters.key_filter(Core.Message.ID) will output
+                                           the value of the Core.Message.ID field instead of a
+                                           message record
+        @return message                  - either an (optionally filtered) message record or None
+        """
         loaded = self.api_core.load_search(Core.Class.CAMPAIGN_EMAIL,
                                            {Core.Message.NAME: message_name})
         message = self.api_core.filter_loaded(loaded,
@@ -44,11 +148,35 @@ class Helpers:
                                               output_filter)
         return message[0] if len(message) else None
 
-    def message_by_id(self, message_id):
-        return self.api_core.load(Core.Class.CAMPAIGN_EMAIL,
-                                  {Core.Message.ID: message_id})
+    def message_by_id(self, message_id, output_filter=None):
+        """
+        Get an (optionally filtered) message record from a message id.
+        ------------------------------------------------
+        @param message_id                - '555555'
+        @param [output_filter]           - filter for the record, e.g.
+                                           Core.Filters.key_filter(Core.Message.BODY_HTML) will output
+                                           the value of the Core.Message.BODY_HTML field instead of a
+                                           full message record
+        @return message                  - either an (optionally filtered) message record or None
+        """
+        loaded = self.api_core.load(Core.Class.CAMPAIGN_EMAIL, {Core.Message.ID: message_id})
+        message = self.api_core.filter_loaded([loaded], None, output_filter)
+        return message[0] if len(message) else None
 
     def create_message(self, message_name, subject, message_body, overwrite_existing=False):
+        """
+        Create an email message, optionally overwriting any existing
+        records with the same message name.
+        ------------------------------------------------
+        @param message_name              - 'my_message'
+        @param subject                   - 'subject line'
+        @param message_body              - '<h1>Hello, world</h1>'
+        @param [overwrite_existing]      - should existing records by this name be overwritten?
+                                           True / False
+        @return result                   - storage result e.g. {emailId: 555555,
+                                                                beanName: bus_entity_campaign_email,
+                                                                messageId: 555555}
+        """
         self.api_core.handle_existing(Core.Class.CAMPAIGN_EMAIL,
                                       self.message_by_name(message_name),
                                       overwrite_existing)
@@ -61,6 +189,19 @@ class Helpers:
 
 
     def create_list(self, list_name, list_data, notify_uri=None, overwrite_existing=False):
+        """
+        Create a contact list, optionally overwriting any existing
+        records with the same message name.
+        ------------------------------------------------
+        @param list_name                 - 'my_contact_list'
+        @param list_data                 - person record or list of person records e.g.
+                                           {'email': 'blackhole@example.com', 'name': 'John Doe'}
+        @param [notify_uri]              - email address to receive notification when finished
+                                           e.g. 'blackhole+notifications@example.com'
+        @param [overwrite_existing]      - should existing recods by this name be overwritten?
+                                           True / False
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
+        """
         self.api_core.handle_existing(Core.Class.CAMPAIGN_LIST,
                                       self.list_by_name(list_name),
                                       overwrite_existing)
@@ -68,26 +209,50 @@ class Helpers:
         created = self.api_core.create(Core.Class.CAMPAIGN_LIST)
         paste_file = self.api_translator.encsv(list_data)
 
-        entity_data = dict(list({Core.Upload.NOTIFY_URI: notify_uri,
-                                 Core.List.NAME: list_name,
-                                 Core.Entity.ID: created,
-                                 Core.Upload.PASTE_FILE: paste_file}.items()) +
-                                          [self.api_translator.csv_fields(paste_file)])
+        entity_data = {Core.Upload.NOTIFY_URI: notify_uri,
+                       Core.List.NAME: list_name,
+                       Core.Entity.ID: created}
+        entity_data.update([self.api_translator.base_encode(Core.Upload.PASTE_FILE, paste_file)])
+        entity_data.update(self.api_translator.csv_fields(paste_file))
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
 
 
     def send_to_person(self, message_name, email_address, custom_data=None):
+        """
+        Send a one off transactional email message to a given
+        email address.
+        ------------------------------------------------
+        @param message_name              - 'my_message'
+        @param email_address             - 'blackhole@example.com'
+        @param [custom_data]             - dictionary of merge variables for the email
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_one2one}
+        """
         entity_data = {Core.Message.TO_ADDRESS: email_address}
         if custom_data is not None:
             entity_data[Core.Message.CUSTOM_DATA] = custom_data
-        created = self.api_core.create(Core.Class.CAMPAIGN_ONE_TO_ONE,
-                                       entity_data,
-                                       {Core.Message.MSG_NAME: message_name})
+        try:
+            created = self.api_core.create(Core.Class.CAMPAIGN_ONE_TO_ONE,
+                                           entity_data,
+                                           {Core.Message.MSG_NAME: message_name})
+        except Core.CreateError as e:
+            if 'new message' in e.message:
+                message = ('None found: message_name=%s' % (message_name))
+                raise Helpers.NoneFoundError(message)
+            raise
         return self.api_core.store(Core.Class.CAMPAIGN_ONE_TO_ONE,
                                    {Core.Entity.ID: created})
 
-
     def send_to_list(self, message_name, list_name, scheduling_delay = {Core.Scheduling.MINUTES: 3}):
+        """
+        Schedule the sending of an email campaign to a contact list.
+        Setting
+        ------------------------------------------------
+        @param message_name              - 'my_message'
+        @param list_name                 - 'my_contact_list'
+        @param [scheduling_delay]        - {Core.Scheduling.MINUTES: 3}
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_delivery,
+                                                                deliveryId: 7740786}
+        """
         created = self.api_core.create(Core.Class.CAMPAIGN_DELIVERY)
         list_id = self.list_by_name(list_name,
                                     Core.Filters.key_filter(Core.List.ID))
@@ -97,7 +262,7 @@ class Helpers:
         message_id = self.message_by_name(message_name,
                                           Core.Filters.key_filter(Core.Message.ID))
         if message_id is None:
-            message_id = ('None found: message_name=%s' % (message_name))
+            message = ('None found: message_name=%s' % (message_name))
             raise Helpers.NoneFoundError(message)
         schedule_time = datetime.datetime.now() + datetime.timedelta(**scheduling_delay)
         schedule_time = schedule_time.strftime('%d/%m/%Y %H:%M')
@@ -110,20 +275,35 @@ class Helpers:
 
 
     def add_person(self, list_name, person, notify_uri=None):
+        """
+        Proxy call to Helpers.add_people for a single person record
+        ------------------------------------------------
+        @param list_name                 - 'my_list_name'
+        @param person                    - person dictionary with desired fields and values
+        @param [notify_uri]              - email address to receive notification when finished
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
+        """
         return self.add_people(list_name, [person], notify_uri)
 
 
     def add_people(self, list_name, people, notify_uri=None):
-        # structure more like create_list which does most of the same stuff
-        entity_data = {Core.List.NAME: list_name,
-                       Core.Upload.TYPE: 'APPEND',
-                       Core.Upload.NOTIFY_URI: notify_uri}
-        paste_file = self.api_translator.encsv(people)
-        entity_data.update([self.api_translator.base_encode(Core.Upload.PASTE_FILE,
-                                                            paste_file)])
-        entity_data.update(self.api_translator.csv_fields(paste_file))
+        """
+        Add multiple person records to a list
+        ------------------------------------------------
+        @param list_name                 - 'my_list_name'
+        @param people                    - list of person dictionaries with desired fields and values
+        @param [notify_uri]              - email address to receive notification when finished
+                                           e.g. 'blackhole@example.com'
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
+        """
         created = self.api_core.create(Core.Class.CAMPAIGN_LIST)
-        entity_data.update({Core.Entity.ID: created})
+        entity_data = {Core.List.NAME: list_name,
+                       Core.Upload.TYPE: Core.Upload.APPEND,
+                       Core.Upload.NOTIFY_URI: notify_uri,
+                       Core.Entity.ID: created}
+        paste_file = self.api_translator.encsv(people)
+        entity_data.update([self.api_translator.base_encode(Core.Upload.PASTE_FILE, paste_file)])
+        entity_data.update(self.api_translator.csv_fields(paste_file))
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
 
 

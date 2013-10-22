@@ -84,10 +84,17 @@ class Core:
 
 
     def authenticate(self, api_username, api_password):
+        """
+        Retrieve a context id for a set of credentials, or throw a
+        Core.AuthenticationError.
+        ------------------------------------------------
+        @param api_username              - username of account from which to make api calls
+        @param api_password              - password of that same account
+        @return result                   - self.api_context, having just been set
+        """
         self.api_username = api_username
         self.api_password = api_password
-        auth_response = self.make_request(Core.Type.FACADE,
-                                          Core.Class.CONTEXT,
+        auth_response = self.make_request(Core.Class.CONTEXT,
                                           Core.Process.AUTHENTICATE, {'userName': api_username,
                                                                       'password': api_password})
 
@@ -100,19 +107,40 @@ class Core:
 
 
     def invalidate(self):
-        self.make_request(Core.Type.FACADE, Core.Class.CONTEXT, Core.Process.INVALIDATE, no_response=True)
+        """
+        Clears authentication credentials, makes a logout call
+        to PureResponse. Follow-on calls will fail before calling
+        as a result of lacking an api context id (Core.context_id).
+        ------------------------------------------------
+        """
+        self.make_request(Core.Class.CONTEXT, Core.Process.INVALIDATE, no_response=True)
         self.api_context = None
         self.api_password = None
         self.api_username = None
 
 
-    def make_request(self, b_type, bean_class, b_proc, entity_data=None, p_data=None, no_response=False):
-        if self.api_context or (b_proc is Core.Process.AUTHENTICATE):
+    def make_request(self, bean_class, bean_proc, entity_data=None, process_data=None, no_response=False):
+        """
+        Makes the actual SOAP requests.
+        Translates entity and process data in the form of dictionaries
+        into SOAP structures, using Translator.ensuds from ./translator.py.
+        If the caller wants a response, return the SOAP response translated
+        back into dictionary form.
+        ------------------------------------------------
+        @param bean_class                - describes the entity being operated on
+        @param bean_proc                 - how to operate on the entity
+        @param [entity_data]             - search parameters, identifying data, input
+        @param [process_data]            - extra data for the process (create, store, load, ..)
+                                           e.g. message name when sending a one to one message
+        @return result                   - response dictionary, usually filtered before
+                                           being returned by the API wrapper
+        """
+        if self.api_context or (bean_proc is Core.Process.AUTHENTICATE):
             response = self.api_client.service.handleRequest(self.api_context or self.api_translator.null(),
-                                                             b_type + '_' + bean_class,
-                                                             b_proc,
+                                                             Core.Type.FACADE + '_' + bean_class,
+                                                             bean_proc,
                                                              self.api_translator.ensuds(entity_data),
-                                                             self.api_translator.ensuds(p_data))
+                                                             self.api_translator.ensuds(process_data))
             if no_response:
                 return {'ok': True}
             else:
@@ -126,7 +154,17 @@ class Core:
 
 
     def create(self, bean_class, entity_data=None, process_data=None):
-        create_response = self.make_request(Core.Type.FACADE, bean_class, Core.Process.CREATE, entity_data, process_data)
+        """
+        Proxy for create requests, fills in process parameter and filters
+        the result returning only the bean id.
+        ------------------------------------------------
+        @param bean_class                - describes the entity being created
+        @param [entity_data]             - input data for create process, almost always
+                                           empty (see Helpers.send_to_person for exception)
+        @param [process_data]            - process data for create process (exception as above)
+        @return result                   - id of created object
+        """
+        create_response = self.make_request(bean_class, Core.Process.CREATE, entity_data, process_data)
         if not create_response.get('ok'):
             message = ('Create failed: bean_class=%s, entity_data=%s, process_data=%s, response=%s' %
                        (bean_class, entity_data, process_data, self.api_translator.response_data(create_response)))
@@ -135,7 +173,15 @@ class Core:
 
 
     def remove(self, bean_class, bean_id):
-        remove_response = self.make_request(Core.Type.FACADE, bean_class,
+        """
+        Proxy for remove request, fills in process parameter and data.
+        Filters the result from Core.make_request before returning.
+        ------------------------------------------------
+        @param bean_class                - describes the entity being removed
+        @param bean_id                   - specifies the bean id of the entity
+        @return result                   - filtered response dictionary
+        """
+        remove_response = self.make_request(bean_class,
                                             Core.Process.REMOVE,
                                             {Core.Entity.ID: bean_id})
         if not remove_response.get('ok'):
@@ -146,16 +192,32 @@ class Core:
 
 
     def store(self, bean_class, entity_data):
-        store_response = self.make_request(Core.Type.FACADE, bean_class, Core.Process.STORE, entity_data)
+        """
+        Proxy for store request, fills in process parameter and
+        filters the results.
+        ------------------------------------------------
+        @param bean_class                - describes the entity being stored
+        @param entity_data               - entity data to store
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
+        """
+        store_response = self.make_request(bean_class, Core.Process.STORE, entity_data)
         if not store_response.get('ok'):
             message = ('Store failed: bean_class=%s, entity_data=%s, response=%s' %
                        (bean_class, entity_data, self.api_translator.response_data(store_response)))
             raise Core.StoreError(message)
-        return self.api_translator.response_data(store_response)
+        return self.api_translator.response_stored(store_response, bean_class)
 
 
     def search(self, bean_class, search_params):
-        search_response = self.make_request(Core.Type.FACADE, bean_class, Core.Process.SEARCH, search_params)
+        """
+        Proxy for search request, fills in process parameter and
+        filters the results.
+        ------------------------------------------------
+        @param bean_class                - describes the entity being searched for
+        @param search_params             - dictionary of search parameters
+        @return result                   - search results, list of found records
+        """
+        search_response = self.make_request(bean_class, Core.Process.SEARCH, search_params)
         if not search_response.get('ok'):
             message = ('Search failed: bean_class=%s, search_params=%s, response=%s' %
                        (bean_class, search_params, self.api_translator.response_data(search_response)))
@@ -164,7 +226,15 @@ class Core:
 
 
     def load(self, bean_class, entity_data):
-        load_response = self.make_request(Core.Type.FACADE, bean_class, Core.Process.LOAD, entity_data)
+        """
+        Proxy for load request, fills in process parameter and
+        filters the results.
+        ------------------------------------------------
+        @param bean_class                - describes the entity being loaded
+        @param entity_data               - entity data to load from, e.g. {Core.List.ID: list_id}
+        @return result                   - filtered result, dictionary of requested entity
+        """
+        load_response = self.make_request(bean_class, Core.Process.LOAD, entity_data)
         if not load_response.get('ok'):
             message = ('Load failed: bean_class=%s, entity_data=%s, response=%s' %
                        (bean_class, entity_data, self.api_translator.response_data(load_response)))
@@ -173,10 +243,29 @@ class Core:
 
 
     def load_search(self, bean_class, search_params):
+        """
+        Search for some parameters and for each resulting record,
+        load said record and return the set of those results.
+        ------------------------------------------------
+        @param bean_class                - describes the entity being loaded
+        @param search_params             - dictionary of search parameters
+        @return result                   - list of dictionaries for loaded records
+        """
         return [self.load(bean_class, entity_data) for entity_data in self.search(bean_class, search_params)]
 
 
     def filter_loaded(self, candidates, filters=None, output_filter=None):
+        """
+        Filter results of loading by some condition on a key, or filter
+        the output. e.g. output_filter=Core.Filters.key_filter(Core.List.NAME)
+        will take a list record and only return the list name field.
+        ------------------------------------------------
+        @param candidates                - list of records
+        @param [filters]                 - dictionary of key, value
+        @param [output_filter]           - filter each dictionary by some function,
+                                           e.g. Core.Filters.key_filter
+        @return result                   - filtered set of dictionaries
+        """
         filtered = []
         for candidate in candidates:
             skip = False
@@ -192,9 +281,17 @@ class Core:
 
 
     def handle_existing(self, bean_class, found, overwrite_existing):
-        if found and len(found):
+        """
+        When creating a new record this function will handle existing records
+        by the same name according to the value of overwrite_existing.
+        ------------------------------------------------
+        @param bean_class                - describes the entity being created
+        @param found                     - set of existing records found
+        @param overwrite_existing        - True/False, overwrite existing records?
+        """
+        if found:
             if overwrite_existing:
-                removed = self.remove(bean_class, found[0].get(Core.Entity.ID))
+                removed = self.remove(bean_class, found.get(Core.Entity.ID))
             else:
                 message = ('Record exists: overwrite_existing=%s' % (overwrite_existing))
                 raise Core.ExistsError(message)
