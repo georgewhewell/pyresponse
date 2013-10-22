@@ -242,13 +242,6 @@ class Helpers:
         return self.api_core.store(Core.Class.CAMPAIGN_ONE_TO_ONE,
                                    {Core.Entity.ID: created})
 
-
-
-
-
-    lib.core.CreateError: Create failed: bean_class=campaign_one2one, entity_data={'toAddress': 'mikael.kohlmyr@triggeredmessaging.com'}, process_data={'message_messageName': 'apiapiapiapaipaipaipa'}, response={contentType: Content type not supplied for new message}
-
-
     def send_to_list(self, message_name, list_name, scheduling_delay = {Core.Scheduling.MINUTES: 3}):
         """
         Schedule the sending of an email campaign to a contact list.
