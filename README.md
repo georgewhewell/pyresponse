@@ -10,7 +10,7 @@ mikael.kohlmyr@triggeredmessaging.com
 [Triggered Messaging](http://www.triggeredmessaging.com),   
 [Pure360](http://www.pure360.com)
 
-API Examples  
+Examples  
 ==========
 **Import**  
 ```python
@@ -144,7 +144,7 @@ def key_filter(key):
     return closed
 ```
 
-API Concepts and Internals  
+Concepts and Internals  
 ==========
 **PureResponse Application Interface (PAINT)**  
 PAINT is an interface to PureResponse which is accessed through the [Simple Object Access Protocol](http://en.wikipedia.org/wiki/SOAP).  
