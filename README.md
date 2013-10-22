@@ -152,7 +152,7 @@ However, unlike in a traditional SOAP implementation, all calls are made to the 
 
 ```python
 context = self.api_context or self.api_translator.null()
-bean = bean_type + '_' + bean_class
+bean = Core.Type.FACADE + '_' + bean_class
 entity_data = self.api_translator.ensuds(entity_data)
 process_data = self.api_translate.ensuds(process_data)
 response = self.api_client.service.handleRequest(context,
