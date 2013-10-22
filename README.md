@@ -7,7 +7,7 @@ Python API wrapper for PureResponse PAINT
 Copyright (c) 2013 Mikael Kohlmyr, Triggered Messaging Ltd  
 mikael.kohlmyr@triggeredmessaging.com
 
-[Triggered Messaging](http://www.triggeredmessaging.com),   
+[Triggered Messaging](http://www.triggeredmessaging.com),  
 [Pure360](http://www.pure360.com)
 
 Examples  

@@ -93,8 +93,7 @@ class Core:
         """
         self.api_username = api_username
         self.api_password = api_password
-        auth_response = self.make_request(Core.Type.FACADE,
-                                          Core.Class.CONTEXT,
+        auth_response = self.make_request(Core.Class.CONTEXT,
                                           Core.Process.AUTHENTICATE, {'userName': api_username,
                                                                       'password': api_password})
 
@@ -113,13 +112,13 @@ class Core:
         as a result of lacking an api context id (Core.context_id).
         ------------------------------------------------
         """
-        self.make_request(Core.Type.FACADE, Core.Class.CONTEXT, Core.Process.INVALIDATE, no_response=True)
+        self.make_request(Core.Class.CONTEXT, Core.Process.INVALIDATE, no_response=True)
         self.api_context = None
         self.api_password = None
         self.api_username = None
 
 
-    def make_request(self, bean_type, bean_class, bean_proc, entity_data=None, process_data=None, no_response=False):
+    def make_request(self, bean_class, bean_proc, entity_data=None, process_data=None, no_response=False):
         """
         Makes the actual SOAP requests.
         Translates entity and process data in the form of dictionaries
@@ -135,7 +134,7 @@ class Core:
         """
         if self.api_context or (bean_proc is Core.Process.AUTHENTICATE):
             response = self.api_client.service.handleRequest(self.api_context or self.api_translator.null(),
-                                                             bean_type + '_' + bean_class,
+                                                             Core.Type.FACADE + '_' + bean_class,
                                                              bean_proc,
                                                              self.api_translator.ensuds(entity_data),
                                                              self.api_translator.ensuds(process_data))
@@ -152,7 +151,7 @@ class Core:
 
 
     def create(self, bean_class, entity_data=None, process_data=None):
-        create_response = self.make_request(Core.Type.FACADE, bean_class, Core.Process.CREATE, entity_data, process_data)
+        create_response = self.make_request(bean_class, Core.Process.CREATE, entity_data, process_data)
         if not create_response.get('ok'):
             message = ('Create failed: bean_class=%s, entity_data=%s, process_data=%s, response=%s' %
                        (bean_class, entity_data, process_data, self.api_translator.response_data(create_response)))
@@ -161,7 +160,7 @@ class Core:
 
 
     def remove(self, bean_class, bean_id):
-        remove_response = self.make_request(Core.Type.FACADE, bean_class,
+        remove_response = self.make_request(bean_class,
                                             Core.Process.REMOVE,
                                             {Core.Entity.ID: bean_id})
         if not remove_response.get('ok'):
@@ -172,7 +171,7 @@ class Core:
 
 
     def store(self, bean_class, entity_data):
-        store_response = self.make_request(Core.Type.FACADE, bean_class, Core.Process.STORE, entity_data)
+        store_response = self.make_request(bean_class, Core.Process.STORE, entity_data)
         if not store_response.get('ok'):
             message = ('Store failed: bean_class=%s, entity_data=%s, response=%s' %
                        (bean_class, entity_data, self.api_translator.response_data(store_response)))
@@ -181,7 +180,7 @@ class Core:
 
 
     def search(self, bean_class, search_params):
-        search_response = self.make_request(Core.Type.FACADE, bean_class, Core.Process.SEARCH, search_params)
+        search_response = self.make_request(bean_class, Core.Process.SEARCH, search_params)
         if not search_response.get('ok'):
             message = ('Search failed: bean_class=%s, search_params=%s, response=%s' %
                        (bean_class, search_params, self.api_translator.response_data(search_response)))
@@ -190,7 +189,7 @@ class Core:
 
 
     def load(self, bean_class, entity_data):
-        load_response = self.make_request(Core.Type.FACADE, bean_class, Core.Process.LOAD, entity_data)
+        load_response = self.make_request(bean_class, Core.Process.LOAD, entity_data)
         if not load_response.get('ok'):
             message = ('Load failed: bean_class=%s, entity_data=%s, response=%s' %
                        (bean_class, entity_data, self.api_translator.response_data(load_response)))

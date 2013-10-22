@@ -1,3 +1,3 @@
 from distutils.core import setup
 
-setup(name='PyPureResponse', version='1.1.1', py_modules=['pypureresponse'], requires=['suds'])
+setup(name='pyresponse', version='1.1.1', py_modules=['pyresponse'], requires=['suds'])
