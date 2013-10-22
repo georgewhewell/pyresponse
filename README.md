@@ -90,8 +90,6 @@ pureresponse.message_by_name('new_message_name')
 # by message id
 pureresponse.message_by_id('555555')
 ```
-For more readily available api calls, see [helpers.py](lib/helpers.py)  
-
 ==========
 **Using constants**  
 ```python
@@ -143,7 +141,10 @@ def key_filter(key):
         return candidate.get(key)
     return closed
 ```
-
+==========
+**More information**  
+For API calls, see [helpers.py](lib/helpers.py)  
+For constants, see [core.py](lib/core.py)  
 Concepts and Internals  
 ==========
 **PureResponse Application Interface (PAINT)**  
