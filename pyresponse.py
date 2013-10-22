@@ -10,7 +10,7 @@ from suds.client import Client as Suds
 import types
 
 class PureResponseClient(object):
-    version = '2.0.0'
+    version = '1.2.1'
 
     api_client = None
     api_account_level = None
