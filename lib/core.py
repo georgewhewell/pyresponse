@@ -84,6 +84,13 @@ class Core:
 
 
     def authenticate(self, api_username, api_password):
+        """
+        Retrieve a context id for a set of credentials, or throw a
+        Core.AuthenticationError.
+        ------------------------------------------------
+        @param api_username              - username of account from which to make api calls
+        @param api_password              - password of that same account
+        """
         self.api_username = api_username
         self.api_password = api_password
         auth_response = self.make_request(Core.Type.FACADE,
@@ -100,19 +107,38 @@ class Core:
 
 
     def invalidate(self):
+        """
+        Clears authentication credentials, makes a logout call
+        to PureResponse. Follow-on calls will fail before calling
+        as a result of lacking an api context id (Core.context_id).
+        ------------------------------------------------
+        """
         self.make_request(Core.Type.FACADE, Core.Class.CONTEXT, Core.Process.INVALIDATE, no_response=True)
         self.api_context = None
         self.api_password = None
         self.api_username = None
 
 
-    def make_request(self, b_type, bean_class, b_proc, entity_data=None, p_data=None, no_response=False):
-        if self.api_context or (b_proc is Core.Process.AUTHENTICATE):
+    def make_request(self, bean_type, bean_class, bean_proc, entity_data=None, process_data=None, no_response=False):
+        """
+        Makes the actual SOAP requests.
+        Translates entity and process data in the form of dictionaries
+        into SOAP structures, using Translator.ensuds from ./translator.py.
+        If the caller wants a response, return the SOAP response translated
+        back into dictionary form.
+        ------------------------------------------------
+        @param bean_type                 - Core.Type.ENTITY, Core.Type.FACADE, Core.Type.SEARCH
+        @param bean_class                -
+        @param bean_proc                 -
+        @param [entity_data]             -
+        @param [process_data]            -
+        """
+        if self.api_context or (bean_proc is Core.Process.AUTHENTICATE):
             response = self.api_client.service.handleRequest(self.api_context or self.api_translator.null(),
-                                                             b_type + '_' + bean_class,
-                                                             b_proc,
+                                                             bean_type + '_' + bean_class,
+                                                             bean_proc,
                                                              self.api_translator.ensuds(entity_data),
-                                                             self.api_translator.ensuds(p_data))
+                                                             self.api_translator.ensuds(process_data))
             if no_response:
                 return {'ok': True}
             else:
@@ -151,7 +177,7 @@ class Core:
             message = ('Store failed: bean_class=%s, entity_data=%s, response=%s' %
                        (bean_class, entity_data, self.api_translator.response_data(store_response)))
             raise Core.StoreError(message)
-        return self.api_translator.response_data(store_response)
+        return self.api_translator.response_stored(store_response, bean_class)
 
 
     def search(self, bean_class, search_params):
@@ -192,9 +218,10 @@ class Core:
 
 
     def handle_existing(self, bean_class, found, overwrite_existing):
-        if found and len(found):
+        if found:
             if overwrite_existing:
-                removed = self.remove(bean_class, found[0].get(Core.Entity.ID))
+                print found
+                removed = self.remove(bean_class, found.get(Core.Entity.ID))
             else:
                 message = ('Record exists: overwrite_existing=%s' % (overwrite_existing))
                 raise Core.ExistsError(message)
