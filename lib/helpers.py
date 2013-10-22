@@ -200,7 +200,7 @@ class Helpers:
                                            e.g. 'blackhole+notifications@example.com'
         @param [overwrite_existing]      - should existing recods by this name be overwritten?
                                            True / False
-        @return result                   - storage result {beanName: bus_entity_campaign_list}
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
         """
         self.api_core.handle_existing(Core.Class.CAMPAIGN_LIST,
                                       self.list_by_name(list_name),
@@ -225,7 +225,7 @@ class Helpers:
         @param message_name              - 'my_message'
         @param email_address             - 'blackhole@example.com'
         @param [custom_data]             - dictionary of merge variables for the email
-        @return result                   - storage result {beanName: bus_entity_campaign_one2one}
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_one2one}
         """
         entity_data = {Core.Message.TO_ADDRESS: email_address}
         if custom_data is not None:
@@ -250,7 +250,8 @@ class Helpers:
         @param message_name              - 'my_message'
         @param list_name                 - 'my_contact_list'
         @param [scheduling_delay]        - {Core.Scheduling.MINUTES: 3}
-        @return result                   - storage result {beanName: bus_entity_campaign_delivery, deliveryId: 7740786}
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_delivery,
+                                                                deliveryId: 7740786}
         """
         created = self.api_core.create(Core.Class.CAMPAIGN_DELIVERY)
         list_id = self.list_by_name(list_name,
@@ -261,7 +262,7 @@ class Helpers:
         message_id = self.message_by_name(message_name,
                                           Core.Filters.key_filter(Core.Message.ID))
         if message_id is None:
-            message_id = ('None found: message_name=%s' % (message_name))
+            message = ('None found: message_name=%s' % (message_name))
             raise Helpers.NoneFoundError(message)
         schedule_time = datetime.datetime.now() + datetime.timedelta(**scheduling_delay)
         schedule_time = schedule_time.strftime('%d/%m/%Y %H:%M')
@@ -280,7 +281,7 @@ class Helpers:
         @param list_name                 - 'my_list_name'
         @param person                    - person dictionary with desired fields and values
         @param [notify_uri]              - email address to receive notification when finished
-        @return result                   - storage result {beanName: bus_entity_campaign_list}
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
         """
         return self.add_people(list_name, [person], notify_uri)
 
@@ -293,7 +294,7 @@ class Helpers:
         @param people                    - list of person dictionaries with desired fields and values
         @param [notify_uri]              - email address to receive notification when finished
                                            e.g. 'blackhole@example.com'
-        @return result                   - storage result {beanName: bus_entity_campaign_list}
+        @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
         """
         created = self.api_core.create(Core.Class.CAMPAIGN_LIST)
         entity_data = {Core.List.NAME: list_name,
@@ -304,7 +305,6 @@ class Helpers:
         entity_data.update([self.api_translator.base_encode(Core.Upload.PASTE_FILE, paste_file)])
         entity_data.update(self.api_translator.csv_fields(paste_file))
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
-
 
 
     class NoneFoundError(Exception):
