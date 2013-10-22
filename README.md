@@ -164,11 +164,11 @@ result = self.api_translator.desuds(response)
 ```
 
 **Beans**  
-The term Bean is used in PureResponse to refer to logical entities that contain or manage data, not unlike objects.  
+The term `bean` is used in PureResponse to refer to logical entities that contain or manage data, not unlike objects.  
 
-| Bean type | Prefix       | Description                                                     |
-| --------- | ------------ | --------------------------------------------------------------- |
-| Entity    | `bus_entity` | The representations of the core data in PureResponse            |
-| Facade    | `bus_facade` | Proxies for accessing and manipulating Entity and Search beans  |
-| Search    | `bus_search` | Define how entities are searchable and format results           |
+| Bean type | Prefix       | Description                                                           |
+| --------- | ------------ | --------------------------------------------------------------------- |
+| Entity    | `bus_entity` | The representations of the core data in PureResponse.                 |
+| Facade    | `bus_facade` | Proxies for accessing and manipulating Entity and Search beans.       |
+| Search    | `bus_search` | Define how entities are searchable and format results.                |
 
