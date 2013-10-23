@@ -57,6 +57,7 @@ class Core:
 
     class Upload:
         TYPE = 'uploadTransactionType'
+        APPEND = 'APPEND'
         NOTIFY_URI = 'uploadFileNotifyEmail'
         PASTE_FILE = 'pasteFile'
 
@@ -202,8 +203,12 @@ class Core:
         """
         store_response = self.make_request(bean_class, Core.Process.STORE, entity_data)
         if not store_response.get('ok'):
+            response_string = str(self.api_translator.response_data(store_response))
+            if 'already pending' in response_string:
+                message = ('Store failed: item is already pending response=%s' % (response_string))
+                raise Core.PendingError(message)
             message = ('Store failed: bean_class=%s, entity_data=%s, response=%s' %
-                       (bean_class, entity_data, self.api_translator.response_data(store_response)))
+                       (bean_class, entity_data, response_string))
             raise Core.StoreError(message)
         return self.api_translator.response_stored(store_response, bean_class)
 
@@ -304,6 +309,8 @@ class Core:
                 return candidate.get(key)
             return filter
 
+    class PendingError(Exception):
+        pass
 
     class AuthenticationError(Exception):
         pass
