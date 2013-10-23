@@ -172,9 +172,10 @@ The term `bean` is used in PureResponse to refer to logical entities that contai
 | Facade    | `bus_facade` | Proxies for accessing and manipulating Entity and Search beans.   |
 | Search    | `bus_search` | Define how entities are searchable and format results.            |
 
-In essence all calls are made to a `bus_facade` beans and from there `bus_entity` and `bus_search` beans are used or manipulated.
+In essence all calls are made to a `bus_facade` beans and from there `bus_entity` and `bus_search` beans are used or manipulated.  
+
 ==========
-**Request queues**
+**Request queues**  
 Some requests, such as creating lists and adding person records to lists are stored in request queues inside PureResponse rather than being executed immediately.
 This means you can not rely on processing for such tasks being finished when you do the next one. In cases like these, pyresponse will raise a `Core.PendingError`.
-A common example of where this might cause issues is if you upload many people to a list individually with little or no time between requests.
+A common example of where this might cause issues is if you upload many people to a list individually with little or no time between requests.  
