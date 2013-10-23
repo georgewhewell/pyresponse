@@ -38,14 +38,14 @@ pureresponse.create_list('new_list_name',
                           {'email': 'venus@example.com', 'name': 'Jane Doe'}])
 ```
 ==========
-**Append list**  
+**Add people to list**  
 ```python
 # single record
 pureresponse.add_person('new_list_name', 
                         {'email': 'blackhole@example.com', 
                          'name': 'John Doe'})
 # multiple records
-pureresponse.add_person('new_list_name', 
+pureresponse.add_people('new_list_name', 
                         [{'email': 'mars@example.com', 'name': 'John Doe'}, 
                          {'email': 'venus@example.com', 'name': 'Jane Doe'}])
 ```
@@ -173,3 +173,8 @@ The term `bean` is used in PureResponse to refer to logical entities that contai
 | Search    | `bus_search` | Define how entities are searchable and format results.            |
 
 In essence all calls are made to a `bus_facade` beans and from there `bus_entity` and `bus_search` beans are used or manipulated.
+==========
+**Request queues**
+Some requests, such as creating lists and adding person records to lists are stored in request queues inside PureResponse rather than being executed immediately.
+This means you can not rely on processing for such tasks being finished when you do the next one. In cases like these, pyresponse will raise a `Core.PendingError`.
+A common example of where this might cause issues is if you upload many people to a list individually with little or no time between requests.
