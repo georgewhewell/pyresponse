@@ -5,6 +5,7 @@
 import base64
 import StringIO
 import csv
+import re
 
 from core import Core
 
@@ -89,7 +90,7 @@ class Translator:
         return dictionary
 
 
-    def encsv(self, input_):
+    def encsv(self, input_, strict_allowed_field_names=None):
         """
         Turn dictionary or list of dictionaries into a csv string.
         Create a master list of keys in the dictionaries, from the
@@ -107,8 +108,23 @@ class Translator:
 
         master = set()
         for row in input_:
-            master = master.union(row.keys())
+            if not row or not any(row):
+                message = ('Invalid person record(s): empty record person=%s in people=%s' % (row, input_))
+                raise Core.InvalidPersonError(message)
+            try:
+                master = master.union(row.keys())
+            except AttributeError as e:
+                message = ('Invalid person record(s): person=%s in people=%s' % (row, input_))
+                raise Core.InvalidPersonError(message)
         master = sorted(list(master))
+
+        if strict_allowed_field_names is not None:
+            for item in master:
+                if (self.x_encode(item) in [Core.Person.EMAIL, Core.Person.MOBILE]):
+                    continue
+                if item not in strict_allowed_field_names:
+                    message = ('Invalid person record(s): not in set of allowed fields field_name=%s (strict_mode)' % (item))
+                    raise Core.InvalidPersonError(message)
 
         csv_string = StringIO.StringIO()
         csv.register_dialect(Translator.CSV.DIALECT,
@@ -150,14 +166,14 @@ class Translator:
             else:
                 message = ('Mismatched parameter set, should be all or nothing: b_type=%s, b_class=%s' %
                            (b_type, b_class))
-                raise Translator.ParameterError(message)
+                raise Core.ParameterError(message)
         except KeyError as e:
             message = 'KeyError caught. No such field exists: '
             if field in dictionary:
                 message += ('field=%s' % (field))
             else:
                 message += ('b_type=%s, b_class=%s --> %s' % (b_type, b_class, b_type + '_' + b_class))
-            raise Translator.ParameterError(message)
+            raise Core.ParameterError(message)
 
 
     def response_stored(self, response, b_class):
@@ -178,6 +194,29 @@ class Translator:
         if isinstance(string, str):
             string = string.decode('utf-8')
         return string.encode('ascii', errors)
+
+    def htmldecode(self, string):
+        """
+        Fredrik Lundh,
+        http://effbot.org/zone/re-sub.htm#unescape-html
+        """
+        def replace(match):
+            text = match.group(0)
+            if text[:2] == "&#":
+                try:
+                    if text[:3] == "&#x":
+                        return unichr(int(text[3:-1], 16))
+                    else:
+                        return unichr(int(text[2:-1]))
+                except ValueError:
+                    pass
+            else:
+                try:
+                    text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                except KeyError:
+                    pass
+            return text
+        return re.sub("&#?\w+;", replace, string)
 
 
     def base_encode(self, key, value):
@@ -205,7 +244,7 @@ class Translator:
 
         for key in csv_string.splitlines()[0].split(','):
             key_ = self.x_encode(key)
-            if key_ == Core.Person.EMAIL or key_ == Core.Person.MOBILE:
+            if key_ in [Core.Person.EMAIL, Core.Person.MOBILE]:
                 entity_data[key_ + 'Col'] = count
             else:
                 field = 'field' + str(count + 1)
@@ -215,18 +254,10 @@ class Translator:
                 if custom > self.main.api_account_level:
                     message = ('Above account limit: api_account_level=%s (custom fields available)' %
                                (self.main.api_account_level))
-                    raise AccountLevelError(message)
+                    raise Core.AccountLevelError(message)
             count += 1
         return entity_data
 
 
     def null(self):
         return null()
-
-
-    class ParameterError(Exception):
-        pass
-
-    class AccountLevelError(Exception):
-        pass
-

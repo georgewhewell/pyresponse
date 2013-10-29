@@ -237,12 +237,12 @@ class Helpers:
         except Core.CreateError as e:
             if 'new message' in e.message:
                 message = ('None found: message_name=%s' % (message_name))
-                raise Helpers.NoneFoundError(message)
+                raise Core.NoneFoundError(message)
             raise
         return self.api_core.store(Core.Class.CAMPAIGN_ONE_TO_ONE,
                                    {Core.Entity.ID: created})
 
-    def send_to_list(self, message_name, list_name, scheduling_delay = {Core.Scheduling.MINUTES: 3}):
+    def send_to_list(self, message_name, list_name, scheduling_delay={Core.Scheduling.MINUTES: 3}):
         """
         Schedule the sending of an email campaign to a contact list.
         Setting
@@ -258,12 +258,12 @@ class Helpers:
                                     Core.Filters.key_filter(Core.List.ID))
         if list_id is None:
             message = ('None found: list_name=%s' % (list_name))
-            raise Helpers.NoneFoundError(message)
+            raise Core.NoneFoundError(message)
         message_id = self.message_by_name(message_name,
                                           Core.Filters.key_filter(Core.Message.ID))
         if message_id is None:
             message = ('None found: message_name=%s' % (message_name))
-            raise Helpers.NoneFoundError(message)
+            raise Core.NoneFoundError(message)
         schedule_time = datetime.datetime.now() + datetime.timedelta(**scheduling_delay)
         schedule_time = schedule_time.strftime('%d/%m/%Y %H:%M')
 
@@ -274,7 +274,7 @@ class Helpers:
         return self.api_core.store(Core.Class.CAMPAIGN_DELIVERY, entity_data)
 
 
-    def add_person(self, list_name, person, notify_uri=None):
+    def add_person(self, list_name, person, notify_uri=None, strict_mode=True):
         """
         Proxy call to Helpers.add_people for a single person record
         ------------------------------------------------
@@ -283,10 +283,10 @@ class Helpers:
         @param [notify_uri]              - email address to receive notification when finished
         @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
         """
-        return self.add_people(list_name, [person], notify_uri)
+        return self.add_people(list_name, [person], notify_uri, strict_mode)
 
 
-    def add_people(self, list_name, people, notify_uri=None):
+    def add_people(self, list_name, people, notify_uri=None, strict_mode=True):
         """
         Add multiple person records to a list
         ------------------------------------------------
@@ -296,16 +296,27 @@ class Helpers:
                                            e.g. 'blackhole@example.com'
         @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
         """
-        created = self.api_core.create(Core.Class.CAMPAIGN_LIST)
+        if list_name is None or list_name is '':
+            message = ('Invalid list name: list_name=%s' % list_name)
+            raise Core.InvalidListError(message)
+
+        if strict_mode:
+            strict_allowed_field_names = self.list_by_name(list_name, Core.Filters.key_filter(Core.List.CUSTOM_FIELDS))
+            if strict_allowed_field_names is None:
+                message = ('None found: list_name=%s' % list_name)
+                raise Core.NoneFoundError(message)
+        else:
+            strict_allowed_field_names = None
+
+        created = self.api_core.create(Core.Class.CAMPAIGN_LIST, {Core.Upload.TYPE: Core.Upload.APPEND})
         entity_data = {Core.List.NAME: list_name,
                        Core.Upload.TYPE: Core.Upload.APPEND,
                        Core.Upload.NOTIFY_URI: notify_uri,
                        Core.Entity.ID: created}
-        paste_file = self.api_translator.encsv(people)
+        paste_file = self.api_translator.encsv(people, strict_allowed_field_names)
         entity_data.update([self.api_translator.base_encode(Core.Upload.PASTE_FILE, paste_file)])
         entity_data.update(self.api_translator.csv_fields(paste_file))
+
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
 
 
-    class NoneFoundError(Exception):
-        pass
