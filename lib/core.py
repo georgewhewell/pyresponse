@@ -54,6 +54,7 @@ class Core:
         ID = 'listId'
         IDS = 'listIds'
         NAME = 'listName'
+        CUSTOM_FIELDS = 'existingCustomFieldNames'
 
     class Upload:
         TYPE = 'uploadTransactionType'
@@ -167,8 +168,12 @@ class Core:
         """
         create_response = self.make_request(bean_class, Core.Process.CREATE, entity_data, process_data)
         if not create_response.get('ok'):
+            response_string = self.api_translator.response_data(create_response)
+            if 'valid email address' in response_string:
+                message = ('Invalid email address: ' % (response_string))
+                raise Core.InvalidEmailError(message)
             message = ('Create failed: bean_class=%s, entity_data=%s, process_data=%s, response=%s' %
-                       (bean_class, entity_data, process_data, self.api_translator.response_data(create_response)))
+                       (bean_class, entity_data, process_data, response_string))
             raise Core.CreateError(message)
         return self.api_translator.response_bean_id(create_response, bean_class)
 
@@ -205,7 +210,7 @@ class Core:
         if not store_response.get('ok'):
             response_string = str(self.api_translator.response_data(store_response))
             if 'already pending' in response_string:
-                message = ('Store failed: item is already pending response=%s' % (response_string))
+                message = ('Already pending: response=%s' % (response_string))
                 raise Core.PendingError(message)
             message = ('Store failed: bean_class=%s, entity_data=%s, response=%s' %
                        (bean_class, entity_data, response_string))
@@ -278,7 +283,11 @@ class Core:
                 continue
             if filters:
                 for key, value in filters.iteritems():
-                    if not candidate.get(key) == value:
+                    # hands off!
+                    candidate[key] = self.api_translator.htmldecode(self.api_translator.x_encode(candidate.get(key).unescape().__repr__()))
+                    if isinstance(candidate.get(key), unicode) and isinstance(value, str):
+                        value = value.decode('utf-8')
+                    if not (candidate.get(key) == value):
                         skip = True
             if not skip:
                 filtered.append(candidate if not output_filter else output_filter(candidate))
@@ -309,6 +318,15 @@ class Core:
                 return candidate.get(key)
             return filter
 
+    class InvalidEmailError(Exception):
+        pass
+
+    class InvalidPersonError(Exception):
+        pass
+
+    class InvalidListError(Exception):
+        pass
+
     class PendingError(Exception):
         pass
 
@@ -331,4 +349,13 @@ class Core:
         pass
 
     class ExistsError(Exception):
+        pass
+
+    class NoneFoundError(Exception):
+        pass
+
+    class ParameterError(Exception):
+        pass
+
+    class AccountLevelError(Exception):
         pass
