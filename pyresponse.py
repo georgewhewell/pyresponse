@@ -10,7 +10,7 @@ from suds.client import Client as Suds
 import types
 
 class PureResponseClient(object):
-    version = '1.2.3'
+    version = '1.2.4'
 
     api_client = None
     api_account_level = None
@@ -18,18 +18,18 @@ class PureResponseClient(object):
     api_core = None
     api_translator = None
 
-    unicode_exceptions = [Core.Entity.ID, Core.Message.ID, Core.List.ID]
-
-    class Api:
-        RPC_LITERAL_BRANDED = 'http://paint.pure360.com/paint.pure360.com/ctrlPaintLiteral.wsdl'
-        RPC_LITERAL_UNBRANDED = 'http://emailapi.co.uk/emailapi.co.uk/ctrlPaintLiteral.wsdl'
+    encoding_exceptions = [Core.Entity.ID,
+                           Core.Message.ID,
+                           Core.List.ID,
+                           Core.Api.USERNAME,
+                           Core.Api.PASSWORD]
 
     class AccountLevel:
         LITE = 10
         PRO = 20
         EXPERT = 40
 
-    def __init__(self, api_version=Api.RPC_LITERAL_UNBRANDED):
+    def __init__(self, api_version=Core.Api.RPC_LITERAL_UNBRANDED):
         self.api_client = Suds(api_version)
         self.api_translator = Translator(self)
         self.api_core = Core(self)

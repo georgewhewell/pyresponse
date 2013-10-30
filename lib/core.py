@@ -13,6 +13,12 @@ class Core:
 
     api_translator = None
 
+    class Api:
+        RPC_LITERAL_BRANDED = 'http://paint.pure360.com/paint.pure360.com/ctrlPaintLiteral.wsdl'
+        RPC_LITERAL_UNBRANDED = 'http://emailapi.co.uk/emailapi.co.uk/ctrlPaintLiteral.wsdl'
+        USERNAME = 'userName'
+        PASSWORD = 'password'
+
     class Type:
         ENTITY = 'bus_entity'
         FACADE = 'bus_facade'
@@ -97,8 +103,8 @@ class Core:
         self.api_username = api_username
         self.api_password = api_password
         auth_response = self.make_request(Core.Class.CONTEXT,
-                                          Core.Process.AUTHENTICATE, {'userName': api_username,
-                                                                      'password': api_password})
+                                          Core.Process.AUTHENTICATE, {Core.Api.USERNAME: api_username,
+                                                                      Core.Api.PASSWORD: api_password})
 
         if not auth_response.get('ok'):
             message = ('Failed to authenticate credentials: api_username=%s, api_password=%s, response=%s' %

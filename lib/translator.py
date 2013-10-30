@@ -52,9 +52,10 @@ class Translator:
                 setattr(value, 'arr', self.ensuds(dictionary[key]))
             elif isinstance(dictionary[key], str) or isinstance(dictionary[key], unicode):
                 escaped = self.x_encode(dictionary[key], 'xmlcharrefreplace')
-                if isinstance(dictionary[key], unicode) and not key.isdigit() and not (key in self.main.unicode_exceptions):
-                    escaped = base64.b64encode(escaped)
-                    setattr(pair, 'key', getattr(pair, 'key') + '_base64')
+                if isinstance(dictionary[key], unicode) and not key.isdigit() and not (key in self.main.encoding_exceptions):
+                    (key, escaped) = self.base_encode(getattr(pair, 'key'), escaped)
+                    setattr(pair, 'key', key)
+
                 setattr(value, 'str', escaped)
             else:
                 setattr(value, 'str', str(dictionary[key]))
