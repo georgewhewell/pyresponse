@@ -176,8 +176,14 @@ class Core:
         if not create_response.get('ok'):
             response_string = self.api_translator.response_data(create_response)
             if 'valid email address' in response_string:
-                message = ('Invalid email address: ' % (response_string))
+                message = ('Invalid email address: %s' % (response_string))
                 raise Core.InvalidEmailError(message)
+            if 'action not allowed' in response_string:
+                message = ('Not allowed: account likely missing api privelege, repsonse=%s' % (response_string))
+                raise Core.NotAllowedError(message)
+            if 'marked as opted out' in response_string:
+                message = ('opted out: desired recipient has oped out, response=%s' % (response_string))
+                raise Core.OptedOutError(message)
             message = ('Create failed: bean_class=%s, entity_data=%s, process_data=%s, response=%s' %
                        (bean_class, entity_data, process_data, response_string))
             raise Core.CreateError(message)
@@ -342,6 +348,12 @@ class Core:
         pass
 
     class AuthenticationError(Exception):
+        pass
+
+    class NotAllowedError(Exception):
+        pass
+
+    class OptedOutError(Exception):
         pass
 
     class CreateError(Exception):
