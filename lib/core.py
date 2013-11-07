@@ -323,6 +323,11 @@ class Core:
             def filter(candidate):
                 return candidate.get(key)
             return filter
+        @staticmethod
+        def keys_filter(keys):
+            def filter(candidate):
+                return dict([(key, candidate.get(key)) for key in keys if key in candidate])
+            return filter
 
     class InvalidEmailError(Exception):
         pass
