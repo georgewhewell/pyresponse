@@ -181,9 +181,6 @@ class Core:
             if 'action not allowed' in response_string:
                 message = ('Not allowed: account likely missing api privelege, repsonse=%s' % (response_string))
                 raise Core.NotAllowedError(message)
-            if 'marked as opted out' in response_string:
-                message = ('opted out: desired recipient has oped out, response=%s' % (response_string))
-                raise Core.OptedOutError(message)
             message = ('Create failed: bean_class=%s, entity_data=%s, process_data=%s, response=%s' %
                        (bean_class, entity_data, process_data, response_string))
             raise Core.CreateError(message)
@@ -224,6 +221,9 @@ class Core:
             if 'already pending' in response_string:
                 message = ('Already pending: response=%s' % (response_string))
                 raise Core.PendingError(message)
+            if 'marked as opted out' in response_string:
+                message = ('Opted out: desired recipient has opted out, response=%s' % (response_string))
+                raise Core.OptedOutError(message)
             message = ('Store failed: bean_class=%s, entity_data=%s, response=%s' %
                        (bean_class, entity_data, response_string))
             raise Core.StoreError(message)

@@ -245,7 +245,6 @@ class Helpers:
     def send_to_list(self, message_name, list_name, scheduling_delay={Core.Scheduling.MINUTES: 3}):
         """
         Schedule the sending of an email campaign to a contact list.
-        Setting
         ------------------------------------------------
         @param message_name              - 'my_message'
         @param list_name                 - 'my_contact_list'
