@@ -217,7 +217,7 @@ class Helpers:
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
 
 
-    def send_to_person(self, message_name, email_address, custom_data=None):
+    def send_to_person(self, message_name, email_address, custom_data=None, settings=None):
         """
         Send a one off transactional email message to a given
         email address.
@@ -230,6 +230,8 @@ class Helpers:
         entity_data = {Core.Message.TO_ADDRESS: email_address}
         if custom_data is not None:
             entity_data[Core.Message.CUSTOM_DATA] = custom_data
+        if settings is not None:
+            entity_data.update(settings)
         try:
             created = self.api_core.create(Core.Class.CAMPAIGN_ONE_TO_ONE,
                                            entity_data,

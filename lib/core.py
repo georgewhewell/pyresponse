@@ -55,6 +55,8 @@ class Core:
         BODY_HTML = 'bodyHtml'
         TO_ADDRESS = 'toAddress'
         CUSTOM_DATA = 'customData'
+        CUSTOM_FROM = 'message_customFromAddr'
+
 
     class List:
         ID = 'listId'
@@ -224,6 +226,9 @@ class Core:
             if 'marked as opted out' in response_string:
                 message = ('Opted out: desired recipient has opted out, response=%s' % (response_string))
                 raise Core.OptedOutError(message)
+            if 'is not a valid email address' in response_string:
+                message = ('Invalid email address: response=%s' % (response_string))
+                raise Core.InvalidEmailError(message)
             message = ('Store failed: bean_class=%s, entity_data=%s, response=%s' %
                        (bean_class, entity_data, response_string))
             raise Core.StoreError(message)
