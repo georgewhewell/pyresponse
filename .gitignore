@@ -1,0 +1,5 @@
+*.py[co]
+.python-version
+*.egg-info
+/build
+/dist
