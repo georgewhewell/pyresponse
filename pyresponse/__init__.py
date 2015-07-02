@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # coding=utf-8
 #
-
-from lib.core import Core
-from lib.translator import Translator
-from lib.helpers import Helpers
 from suds.client import Client as Suds
 
+from .lib.core import Core
+from .lib.translator import Translator
+from .lib.helpers import Helpers
+
 import types
+
 
 class PureResponseClient(object):
     version = '1.2.7'

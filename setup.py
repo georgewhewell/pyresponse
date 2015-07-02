@@ -21,8 +21,8 @@ class PyTest(TestCommand):
 setup(
     name='pyresponse',
     version='1.2.7', 
-    py_modules=['pyresponse'],
-    requires=['suds'],
+    packages=['pyresponse'],
+    install_requires=['suds'],
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
 )
