@@ -2,8 +2,6 @@
 # coding=utf-8
 #
 
-from suds.client import Client as Suds
-
 class Core:
 
     api_username = None

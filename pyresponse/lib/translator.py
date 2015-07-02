@@ -7,9 +7,10 @@ import StringIO
 import csv
 import re
 
-from core import Core
-
 from suds import null as null
+
+from .core import Core
+
 
 class Translator:
 
