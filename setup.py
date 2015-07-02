@@ -21,7 +21,7 @@ class PyTest(TestCommand):
 setup(
     name='pyresponse',
     version='1.2.7', 
-    packages=['pyresponse'],
+    packages=['pyresponse', 'pyresponse.lib'],
     install_requires=['suds-jurko'],
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
