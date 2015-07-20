@@ -1,4 +1,6 @@
 import uuid
+import pytest
+
 from unittest import TestCase
 
 from pyresponse import PureResponseClient as PureResponseClient
@@ -13,6 +15,10 @@ class BasicTests(TestCase):
         self.client = PureResponseClient()
         self.client.authenticate('tm.system', 'crwkbplf')
 
+    @pytest.mark.xfail  # Cannot create list with empty recipients
+    def test_create_empty_list(self):
+        self.client.create_list(Name(), [])    
+    
     def test_create_list(self):
         self.client.create_list(Name(), 
             {'email': 'blackhole@example.com', 'name': 'John Doe'})
@@ -25,13 +31,15 @@ class BasicTests(TestCase):
             
     def test_add_person_to_list(self):
         list_name = Name()
-        self.client.create_list(list_name, [])
+        self.client.create_list(list_name, [
+            {'email': 'blackhole1@example.com', 'name': 'John Doe 1'}])
         self.client.add_person(list_name,
             {'email': 'blackhole@example.com', 'name': 'John Doe'})
 
     def test_add_people_to_list(self):
         list_name = Name()
-        self.client.create_list(list_name, [])
+        self.client.create_list(list_name, [
+            {'email': 'blackhole1@example.com', 'name': 'John Doe 1'}])
         self.client.add_people(list_name, [
             {'email': 'mars@example.com', 'name': 'John Doe'}, 
             {'email': 'venus@example.com', 'name': 'Jane Doe'}
@@ -73,5 +81,5 @@ class BasicTests(TestCase):
 
     def test_get_list(self):
         list_name = Name()
-        self.client.create_list(list_name, [])
+        self.client.create_list(list_name, [{'email': 'venus@example.com', 'name': 'Jane Doe'}])
         self.client.list_by_name(list_name)
