@@ -5,6 +5,9 @@ import datetime
 
 from .core import Core
 
+NOTIFY_TYPE = 'http'
+DEFAULT_NOTIFY_HTTP = 'http://example.com'
+
 
 class Helpers:
 
@@ -188,7 +191,7 @@ class Helpers:
         return self.api_core.store(Core.Class.CAMPAIGN_EMAIL, entity_data)
 
 
-    def create_list(self, list_name, list_data, notify_uri=None, overwrite_existing=False):
+    def create_list(self, list_name, list_data, notify_uri=DEFAULT_NOTIFY_HTTP, overwrite_existing=False):
         """
         Create a contact list, optionally overwriting any existing
         records with the same message name.
@@ -209,9 +212,12 @@ class Helpers:
         created = self.api_core.create(Core.Class.CAMPAIGN_LIST)
         paste_file = self.api_translator.encsv(list_data)
 
-        entity_data = {Core.Upload.NOTIFY_URI: notify_uri,
-                       Core.List.NAME: list_name,
-                       Core.Entity.ID: created}
+        entity_data = {
+          Core.Upload.NOTIFY_URI: notify_uri,
+          Core.Upload.NOTIFY_TYPE: NOTIFY_TYPE,
+          Core.List.NAME: list_name,
+          Core.Entity.ID: created
+        }
         entity_data.update([self.api_translator.base_encode(Core.Upload.PASTE_FILE, paste_file)])
         entity_data.update(self.api_translator.csv_fields(paste_file))
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
@@ -273,7 +279,7 @@ class Helpers:
         return self.api_core.store(Core.Class.CAMPAIGN_DELIVERY, entity_data)
 
 
-    def add_person(self, list_name, person, notify_uri=None, strict_mode=True):
+    def add_person(self, list_name, person, notify_uri=DEFAULT_NOTIFY_HTTP, strict_mode=True):
         """
         Proxy call to Helpers.add_people for a single person record
         ------------------------------------------------
@@ -285,7 +291,7 @@ class Helpers:
         return self.add_people(list_name, [person], notify_uri, strict_mode)
 
 
-    def add_people(self, list_name, people, notify_uri=None, strict_mode=True):
+    def add_people(self, list_name, people, notify_uri=DEFAULT_NOTIFY_HTTP, strict_mode=True):
         """
         Add multiple person records to a list
         ------------------------------------------------
@@ -308,14 +314,15 @@ class Helpers:
             strict_allowed_field_names = None
 
         created = self.api_core.create(Core.Class.CAMPAIGN_LIST, {Core.Upload.TYPE: Core.Upload.APPEND})
-        entity_data = {Core.List.NAME: list_name,
-                       Core.Upload.TYPE: Core.Upload.APPEND,
-                       Core.Upload.NOTIFY_URI: notify_uri,
-                       Core.Entity.ID: created}
+        entity_data = {
+          Core.List.NAME: list_name,
+          Core.Upload.TYPE: Core.Upload.APPEND,
+          Core.Upload.NOTIFY_URI: notify_uri,
+          Core.Upload.NOTIFY_TYPE: NOTIFY_TYPE,
+          Core.Entity.ID: created
+        }
         paste_file = self.api_translator.encsv(people, strict_allowed_field_names)
         entity_data.update([self.api_translator.base_encode(Core.Upload.PASTE_FILE, paste_file)])
         entity_data.update(self.api_translator.csv_fields(paste_file))
 
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
-
-

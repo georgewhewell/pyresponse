@@ -63,8 +63,9 @@ class Core:
     class Upload:
         TYPE = 'uploadTransactionType'
         APPEND = 'APPEND'
-        NOTIFY_URI = 'uploadFileNotifyEmail'
         PASTE_FILE = 'pasteFile'
+        NOTIFY_URI = 'uploadFileNotifyEmail'
+        NOTIFY_TYPE = 'uploadFileNotifyType'
 
     class Person:
         EMAIL = 'email'
