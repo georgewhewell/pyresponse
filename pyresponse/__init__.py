@@ -19,6 +19,8 @@ class PureResponseClient(object):
     api_core = None
     api_translator = None
 
+    default_timeout = 300
+
     encoding_exceptions = [Core.Entity.ID,
                            Core.Message.ID,
                            Core.List.ID,
@@ -30,8 +32,8 @@ class PureResponseClient(object):
         PRO = 20
         EXPERT = 40
 
-    def __init__(self, api_version=Core.Api.RPC_LITERAL_UNBRANDED):
-        self.api_client = Suds(api_version)
+    def __init__(self, api_version=Core.Api.RPC_LITERAL_UNBRANDED, timeout=default_timeout):
+        self.api_client = Suds(api_version, timeout=timeout)
         self.api_translator = Translator(self)
         self.api_core = Core(self)
 
