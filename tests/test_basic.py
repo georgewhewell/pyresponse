@@ -33,6 +33,7 @@ class BasicTests(TestCase):
         list_name = Name()
         self.client.create_list(list_name, [
             {'email': 'blackhole1@example.com', 'name': 'John Doe 1'}])
+        self.client.wait_for_list(list_name)
         self.client.add_person(list_name,
             {'email': 'blackhole@example.com', 'name': 'John Doe'})
 
@@ -40,6 +41,7 @@ class BasicTests(TestCase):
         list_name = Name()
         self.client.create_list(list_name, [
             {'email': 'blackhole1@example.com', 'name': 'John Doe 1'}])
+        self.client.wait_for_list(list_name)
         self.client.add_people(list_name, [
             {'email': 'mars@example.com', 'name': 'John Doe'}, 
             {'email': 'venus@example.com', 'name': 'Jane Doe'}
@@ -74,6 +76,7 @@ class BasicTests(TestCase):
             'email': 'mars@example.com', 'name': 'John Doe'},
             {'email': 'venus@example.com', 'name': 'Jane Doe'}
         ])
+        self.client.wait_for_list(list_name)
         self.client.send_to_list(message_name, list_name)
 
     def test_get_person(self):
@@ -82,4 +85,5 @@ class BasicTests(TestCase):
     def test_get_list(self):
         list_name = Name()
         self.client.create_list(list_name, [{'email': 'venus@example.com', 'name': 'Jane Doe'}])
+        self.client.wait_for_list(list_name)
         self.client.list_by_name(list_name)

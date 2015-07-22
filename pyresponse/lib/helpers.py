@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # coding=utf-8
 #
+import time
 import datetime
 
 from .core import Core
 
 NOTIFY_TYPE = 'http'
 DEFAULT_NOTIFY_HTTP = 'http://example.com'
+WAIT_INTERVAL = 10
+WAIT_TIMEOUT = 60
 
 
 class Helpers:
@@ -47,6 +50,15 @@ class Helpers:
         person = self.api_core.filter_loaded([loaded], None, output_filter)
         return person[0] if len(person) else None
 
+    def wait_for_list(self, list_name, timeout=WAIT_TIMEOUT):
+        timeout_at = datetime.datetime.now() + datetime.timedelta(seconds=timeout)
+        while datetime.datetime.now() < timeout_at:
+          try:
+            assert self.list_by_name(list_name)
+            return
+          except AssertionError as exception:
+            time.sleep(WAIT_INTERVAL)
+        raise Exception('List not found after {}s'.format(timeout))
 
     def list_by_name(self, list_name, output_filter=None):
         """
