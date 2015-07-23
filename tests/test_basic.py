@@ -1,5 +1,6 @@
 import uuid
 import pytest
+import os
 
 from unittest import TestCase
 
@@ -8,12 +9,16 @@ from pyresponse import PureResponseClient as PureResponseClient
 # Generate a random string to name things
 Name = lambda: str(uuid.uuid4())
 
+# Use ENV-supplied credentials if available
+USERNAME = os.environ.get('PURE360_USER', 'tm.system')
+PASSWORD = os.environ.get('PURE360_PASS', 'crwkbplf')
+
 
 class BasicTests(TestCase):
     
     def setUp(self):
         self.client = PureResponseClient()
-        self.client.authenticate('tm.system', 'crwkbplf')
+        self.client.authenticate(USERNAME, PASSWORD)
 
     @pytest.mark.xfail  # Cannot create list with empty recipients
     def test_create_empty_list(self):
