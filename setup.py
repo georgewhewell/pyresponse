@@ -22,7 +22,7 @@ setup(
     name='pyresponse',
     version='1.2.7', 
     packages=['pyresponse', 'pyresponse.lib'],
-    install_requires=['suds-jurko'],
+    install_requires=['suds-jurko', 'pytz'],
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
 )

@@ -3,6 +3,7 @@
 #
 import time
 import datetime
+import pytz
 
 from .core import Core
 
@@ -10,6 +11,9 @@ NOTIFY_TYPE = 'http'
 DEFAULT_NOTIFY_HTTP = 'http://example.com'
 WAIT_INTERVAL = 10
 WAIT_TIMEOUT = 60
+
+UTC_TIMEZONE = pytz.timezone('Etc/UTC')
+GMT_TIMEZONE = pytz.timezone('Europe/London')
 
 
 class Helpers:
@@ -281,8 +285,10 @@ class Helpers:
         if message_id is None:
             message = ('None found: message_name=%s' % (message_name))
             raise Core.NoneFoundError(message)
-        schedule_time = datetime.datetime.now() + datetime.timedelta(**scheduling_delay)
-        schedule_time = schedule_time.strftime('%d/%m/%Y %H:%M')
+
+        utc_time = UTC_TIMEZONE.localize(
+          datetime.datetime.utcnow() + datetime.timedelta(**scheduling_delay))
+        schedule_time = utc_time.astimezone(GMT_TIMEZONE).strftime('%d/%m/%Y %H:%M')
 
         entity_data = {Core.Scheduling.DELIVERY_TIME: schedule_time,
                        Core.List.IDS: {'0': list_id},
