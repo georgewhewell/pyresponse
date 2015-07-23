@@ -83,6 +83,9 @@ class Core:
         RESULT = 'result'
         RESULT_DATA = 'resultData'
 
+    class Delivery:
+        ID = 'deliveryId'
+
 
     def __init__(self, main):
         self.api_client = main.api_client

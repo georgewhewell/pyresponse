@@ -344,3 +344,11 @@ class Helpers:
         entity_data.update(self.api_translator.csv_fields(paste_file))
 
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
+
+    def load_delivery(self, delivery_id, output_filter=None):
+        """
+        Fetches delivery info
+        """
+        return self.api_core.load(
+          Core.Class.CAMPAIGN_DELIVERY, {Core.Delivery.ID: delivery_id}
+        )
