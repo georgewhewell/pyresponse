@@ -107,7 +107,7 @@ class Core:
 
         if not auth_response.get('ok'):
             message = ('Failed to authenticate credentials: api_username=%s, api_password=%s, response=%s' %
-                       (self.api_username, self.api_password, self.api_translator.response_data(auth_response)))
+                       (self.api_username[:2] + 'xxx', self.api_password[:2] + 'xxx', self.api_translator.response_data(auth_response)))
             raise Core.AuthenticationError(message)
         self.api_context = self.api_translator.response_bean_id(auth_response, Core.Class.CONTEXT)
         return self.api_context
