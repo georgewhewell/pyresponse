@@ -345,10 +345,11 @@ class Helpers:
 
         return self.api_core.store(Core.Class.CAMPAIGN_LIST, entity_data)
 
-    def load_delivery(self, delivery_id, output_filter=None):
+    def load_delivery(self, delivery_id):
         """
         Fetches delivery info
         """
-        return self.api_core.load(
-          Core.Class.CAMPAIGN_DELIVERY, {Core.Delivery.ID: delivery_id}
-        )
+        return self.api_core.load(Core.Class.CAMPAIGN_DELIVERY, {Core.Delivery.ID: delivery_id})
+
+    def load_clicks(self):
+        loaded = self.api_core.get_batch(Core.Class.EVENT_NOTIFICATION)

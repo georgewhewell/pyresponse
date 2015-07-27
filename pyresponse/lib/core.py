@@ -32,6 +32,7 @@ class Core:
         CAMPAIGN_FILTER = 'campaign_filter'
         CAMPAIGN_SMS = 'campaign_sms'
         CAMPAIGN_PERSON = 'campaign_person'
+        EVENT_NOTIFICATION = 'eventNotification'
 
     class Process:
         CREATE = 'create'
@@ -41,6 +42,7 @@ class Core:
         REMOVE = 'remove'
         INVALIDATE = 'logout'
         AUTHENTICATE = 'login'
+        BATCH = 'getBatch'
 
     class Entity:
         ID = 'beanId'
@@ -85,6 +87,12 @@ class Core:
 
     class Delivery:
         ID = 'deliveryId'
+
+    class Notification:
+        TYPES = 'notificationTypes'
+        MAX = 'maxNotifications'
+        MARK_AS_READ = ' markAsReadInd'
+        CLICK = 'CLICK'
 
 
     def __init__(self, main):
@@ -162,6 +170,8 @@ class Core:
                        (self.api_context, self.api_username, self.api_password))
             raise Core.AuthenticationError(message)
 
+    def get_batch(self, bean_class, entity_data=None):
+        return self.make_request(bean_class, Core.Process.BATCH, entity_data)
 
     def create(self, bean_class, entity_data=None, process_data=None):
         """
