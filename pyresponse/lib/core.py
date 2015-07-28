@@ -93,6 +93,7 @@ class Core:
         MAX = 'maxNotifications'
         MARK_AS_READ = ' markAsReadInd'
         CLICK = 'CLICK'
+        OPEN = 'OPEN'
 
 
     def __init__(self, main):
