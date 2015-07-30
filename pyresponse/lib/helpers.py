@@ -349,11 +349,13 @@ class Helpers:
         """
         Fetches delivery info
         """
-        return self.api_core.load(Core.Class.CAMPAIGN_DELIVERY, {Core.Delivery.ID: delivery_id})
+        return self.api_core.load(Core.Class.CAMPAIGN_DELIVERY, {
+          Core.Delivery.ID: delivery_id
+        })
 
     def load_clicks(self):
         return self.api_core.get_batch(Core.Class.EVENT_NOTIFICATION, {
-          Core.Notification.TYPES: [Core.Notification.CLICK, Core.Notification.OPEN],
+          Core.Notification.TYPES: 'CLICK',
           Core.Notification.MAX: 1000,
           Core.Notification.MARK_AS_READ: 'N',
         })

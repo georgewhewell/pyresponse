@@ -171,8 +171,8 @@ class Core:
                        (self.api_context, self.api_username, self.api_password))
             raise Core.AuthenticationError(message)
 
-    def get_batch(self, bean_class, entity_data=None):
-        return self.make_request(bean_class, Core.Process.BATCH, entity_data)
+    def get_batch(self, bean_class, process_data=None):
+        return self.make_request(bean_class, Core.Process.BATCH, None, process_data)
 
     def create(self, bean_class, entity_data=None, process_data=None):
         """
