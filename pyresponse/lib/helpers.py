@@ -4,6 +4,9 @@
 import time
 import datetime
 import pytz
+import csv
+import StringIO
+import base64
 
 from .core import Core
 
@@ -354,8 +357,25 @@ class Helpers:
         })
 
     def load_clicks(self):
-        return self.api_core.get_batch(Core.Class.EVENT_NOTIFICATION, {
+        response = self.api_core.get_batch(Core.Class.EVENT_NOTIFICATION, {
           Core.Notification.TYPES: 'CLICK',
           Core.Notification.MAX: 1000,
           Core.Notification.MARK_AS_READ: 'N',
         })
+
+        if response['resultData']['bus_entity_eventNotificationBatch']['eventData'] is None:
+          return []
+
+        csv_string = StringIO.StringIO(base64.b64decode(
+          response['resultData']['bus_entity_eventNotificationBatch']['eventData']))
+        csv.register_dialect(
+          self.api_translator.CSV.DIALECT,
+             escapechar=self.api_translator.CSV.ESCAPE,
+             quotechar=self.api_translator.CSV.QUOTES,
+             quoting=self.api_translator.CSV.QUOTING,
+             skipinitialspace=self.api_translator.CSV.SKIP_INITIAL_SPACE)
+        reader = csv.DictReader(
+          csv_string,
+          dialect=self.api_translator.CSV.DIALECT)
+        reader.fieldnames = response['resultData']['bus_entity_eventNotificationBatch']['eventMeta']['CLICK'].split(',')
+        return [line for line in reader]
