@@ -210,7 +210,7 @@ class Helpers:
         return self.api_core.store(Core.Class.CAMPAIGN_EMAIL, entity_data)
 
 
-    def create_list(self, list_name, list_data, notify_uri=DEFAULT_NOTIFY_HTTP, overwrite_existing=False):
+    def create_list(self, list_name, list_data, notify_uri=DEFAULT_NOTIFY_HTTP, overwrite_existing=False, from_name=None, from_email=None):
         """
         Create a contact list, optionally overwriting any existing
         records with the same message name.
@@ -224,6 +224,13 @@ class Helpers:
                                            True / False
         @return result                   - storage result e.g. {beanName: bus_entity_campaign_list}
         """
+
+        if from_name:
+          [user.update(__SENDER_DESC__=from_name) for user in users]
+
+        if from_email:
+          [user.update(__SENDER_EMAIL__=from_email) for user in users]
+
         self.api_core.handle_existing(Core.Class.CAMPAIGN_LIST,
                                       self.list_by_name(list_name),
                                       overwrite_existing)
@@ -292,11 +299,11 @@ class Helpers:
         utc_time = UTC_TIMEZONE.localize(
           datetime.datetime.utcnow() + datetime.timedelta(**scheduling_delay))
         schedule_time = utc_time.astimezone(GMT_TIMEZONE).strftime('%d/%m/%Y %H:%M')
-
         entity_data = {Core.Scheduling.DELIVERY_TIME: schedule_time,
                        Core.List.IDS: {'0': list_id},
                        Core.Message.ID: message_id,
-                       Core.Entity.ID: created}
+                       Core.Entity.ID: created,
+                       Core.Message.DYNAMIC_REPLIES: 'Y'}
         return self.api_core.store(Core.Class.CAMPAIGN_DELIVERY, entity_data)
 
 

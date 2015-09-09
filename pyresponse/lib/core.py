@@ -55,6 +55,7 @@ class Core:
         BODY_HTML = 'bodyHtml'
         TO_ADDRESS = 'toAddress'
         CUSTOM_DATA = 'customData'
+        DYNAMIC_REPLIES = 'dynamicReplyInd'
 
     class List:
         ID = 'listId'
