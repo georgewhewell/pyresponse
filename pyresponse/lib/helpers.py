@@ -185,7 +185,7 @@ class Helpers:
         message = self.api_core.filter_loaded([loaded], None, output_filter)
         return message[0] if len(message) else None
 
-    def create_message(self, message_name, subject, message_body, overwrite_existing=False):
+    def create_message(self, message_name, subject, message_body, dynamic_replies=False, overwrite_existing=False):
         """
         Create an email message, optionally overwriting any existing
         records with the same message name.
@@ -206,7 +206,8 @@ class Helpers:
         entity_data = {Core.Message.NAME: message_name,
                        Core.Message.SUBJECT: subject,
                        Core.Message.BODY_HTML: message_body,
-                       Core.Entity.ID: created}
+                       Core.Entity.ID: created,
+                       Core.Message.DYNAMIC_REPLIES: 'Y' if dynamic_replies else 'N'}
         return self.api_core.store(Core.Class.CAMPAIGN_EMAIL, entity_data)
 
 
@@ -226,10 +227,10 @@ class Helpers:
         """
 
         if from_name:
-          [user.update(__SENDER_DESC__=from_name) for user in users]
+          [user.update(__SENDER_DESC__=from_name) for user in list_data]
 
         if from_email:
-          [user.update(__SENDER_EMAIL__=from_email) for user in users]
+          [user.update(__SENDER_EMAIL__=from_email) for user in list_data]
 
         self.api_core.handle_existing(Core.Class.CAMPAIGN_LIST,
                                       self.list_by_name(list_name),
@@ -302,8 +303,7 @@ class Helpers:
         entity_data = {Core.Scheduling.DELIVERY_TIME: schedule_time,
                        Core.List.IDS: {'0': list_id},
                        Core.Message.ID: message_id,
-                       Core.Entity.ID: created,
-                       Core.Message.DYNAMIC_REPLIES: 'Y'}
+                       Core.Entity.ID: created}
         return self.api_core.store(Core.Class.CAMPAIGN_DELIVERY, entity_data)
 
 
